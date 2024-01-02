@@ -25,13 +25,13 @@ def Analyze_market(book):
     REV_avg_price=(REV_avg_bid_price+REV_avg_ask_price)/2
 
     # חישוב ממוצע משקולל
-    power_price=(avg_price+REV_avg_price)/2
+    AVG_Prediction=(avg_price+REV_avg_price)/2
     # הסטיית תקן
     # bid_std_dev = (sum([(bid["PRICE"] - avg_bid_price)**2 * bid["AMOUNT"] * bid["COUNT"] for bid in bids]) / sum([bid["AMOUNT"] * bid["COUNT"] for bid in bids]))**0.5
     # ask_std_dev = (sum([(ask["PRICE"] - avg_ask_price)**2 * ask["AMOUNT"] * ask["COUNT"] for ask in asks]) / sum([ask["AMOUNT"] * ask["COUNT"] for ask in asks]))**0.5
 
     return {
         'Last_Price': Last_Price,
-        'power_price':power_price,
+        'Prediction_price':AVG_Prediction,
     }
 

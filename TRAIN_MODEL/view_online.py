@@ -19,7 +19,7 @@ h=60*60
 LIFE_TIME = h*5
 JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
-SP_len_AVG_LIST_POWERS=10 #500
+SP_len_AVG_LIST=500 #500
 
 top_10_binance_symbols = [
     "BTCUSDT",
@@ -37,7 +37,8 @@ top_10_binance_symbols = [
 
 
 def main():
-    AVG_LIST_POWERS=[]
+    AVG_LIST_Prediction=[]
+    AVG_LIST_last_prices=[]
     life_time = LIFE_TIME
     symbol=top_10_binance_symbols[0]
     STATUS="---"
@@ -46,30 +47,50 @@ def main():
             book_data = Binance_book_data(symbol)
             if book_data:
                 analyzed_data = Analyze_market(book_data)
-                power_price=analyzed_data["power_price"]
+                Prediction_price=analyzed_data["Prediction_price"]
                 last_price=analyzed_data["Last_Price"]
-                PV_len_AVG_LIST_POWERS=len(AVG_LIST_POWERS)
                 TIME=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
                 date=TIME[9:]
                 TIME=TIME[:9]
 
                 
-                if PV_len_AVG_LIST_POWERS>0:old_av=sum(AVG_LIST_POWERS)/PV_len_AVG_LIST_POWERS
-                AVG_LIST_POWERS.append(analyzed_data["power_price"])
+                Len__AVG_LIST_Prediction=len(AVG_LIST_Prediction)
+                Len__AVG_LIST_last_prices=len(AVG_LIST_last_prices)
+                
+                # if Len__AVG_LIST_Prediction>0:
+                #     old_av=sum(AVG_LIST_Prediction)/Len__AVG_LIST_Prediction
+                AVG_LIST_Prediction.append(Prediction_price)
+                AVG_LIST_last_prices.append(last_price)
 
-                if PV_len_AVG_LIST_POWERS>=SP_len_AVG_LIST_POWERS:
-                    AVG_LIST_POWERS.pop(0) 
-                    new_av=sum(AVG_LIST_POWERS)/PV_len_AVG_LIST_POWERS
-                    if new_av>old_av :
-                        STATUS="UP"
-                    else : 
-                        STATUS="DOWN"
-                    output=f'{STATUS},{last_price} ,{analyzed_data["power_price"]},{new_av} , {TIME}\n'
-                    print(str((life_time/LIFE_TIME)*100) + "\n" + output + "-"*20)
+                if Len__AVG_LIST_Prediction>=SP_len_AVG_LIST:
+                    AVG_LIST_Prediction.pop(0) 
+                    AVG_LIST_last_prices.pop(0)
+
+                    Prediction_avg_now=int(sum(AVG_LIST_Prediction)/Len__AVG_LIST_Prediction)
+                    Last_price_avg_now=int(sum(AVG_LIST_last_prices)/Len__AVG_LIST_Prediction)
+                    
+                    if Prediction_avg_now>Last_price_avg_now:STATUS="UP"
+                    elif Prediction_avg_now<Last_price_avg_now:STATUS="DOWN"
+                    else:STATUS="natural"
+                     
+                    output=f'{STATUS:8},{int(last_price)} ,{Last_price_avg_now},{Prediction_avg_now} , {TIME}\n'
                     with open(f"./{symbol} {date}.cvs", "+a") as logfile:
                         logfile.write(output)
+
+                else:
+                    print("collecting data.. :",((Len__AVG_LIST_Prediction+1)/SP_len_AVG_LIST)*100,"%")
+                    
+                     
+                    # if new_av>old_av :
+                    # new_av=
+                    #     STATUS="UP"
+                    # else : 
+                    #     STATUS="DOWN"
+                    # output=f'{STATUS},{last_price} ,{Prediction_price},{new_av} , {TIME}\n'
+                    # print(str((life_time/LIFE_TIME)*100) + "\n" + output + "-"*20)
+                    # with open(f"./{symbol} {date}.cvs", "+a") as logfile:
+                    #     logfile.write(output)
     
-                else:print("collecting data.. :",(PV_len_AVG_LIST_POWERS/SP_len_AVG_LIST_POWERS)*100,"%")
                 
                 time.sleep(STEPS)
                 life_time -= STEPS
