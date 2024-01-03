@@ -19,7 +19,7 @@ h=60*60
 LIFE_TIME = h*5
 JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
-SP_len_AVG_LIST=500 #500
+SP_len_AVG_LIST=100 #500
 
 top_10_binance_symbols = [
     "BTCUSDT",
@@ -62,18 +62,18 @@ def main():
                 AVG_LIST_Prediction.append(Prediction_price)
                 AVG_LIST_last_prices.append(last_price)
 
-                if Len__AVG_LIST_Prediction>=SP_len_AVG_LIST:
-                    AVG_LIST_Prediction.pop(0) 
-                    AVG_LIST_last_prices.pop(0)
+                if Len__AVG_LIST_Prediction>SP_len_AVG_LIST:
+                    del AVG_LIST_Prediction[0]
+                    del AVG_LIST_last_prices[0]
 
                     Prediction_avg_now=int(sum(AVG_LIST_Prediction)/Len__AVG_LIST_Prediction)
                     Last_price_avg_now=int(sum(AVG_LIST_last_prices)/Len__AVG_LIST_Prediction)
-                    
-                    if Prediction_avg_now>Last_price_avg_now:STATUS="UP"
-                    elif Prediction_avg_now<Last_price_avg_now:STATUS="DOWN"
+                    p=int(((3*Prediction_price)+Last_price_avg_now+Prediction_avg_now)/4)
+                    if last_price>p:STATUS="UP"
+                    elif last_price<p:STATUS="DOWN"
                     else:STATUS="natural"
                      
-                    output=f'{STATUS:8},{int(last_price)} ,{Last_price_avg_now},{Prediction_avg_now} , {TIME}\n'
+                    output=f'{STATUS:8},{int(last_price)} ,{p},{Last_price_avg_now},{Prediction_avg_now} , {TIME}\n'
                     with open(f"./{symbol} {date}.cvs", "+a") as logfile:
                         logfile.write(output)
 
