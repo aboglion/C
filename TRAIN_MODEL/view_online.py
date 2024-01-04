@@ -19,7 +19,7 @@ h=60*60
 LIFE_TIME = h*5
 JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
-SP_len_AVG_LIST=100 #500
+SP_len_AVG_LIST=500 #500
 
 top_10_binance_symbols = [
     "BTCUSDT",
