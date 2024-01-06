@@ -76,7 +76,7 @@ def main():
                     if  Last_price_avg_long>last_price>Prediction_avg_now>Last_price_avg_now and\
                         (Last_price_avg_long-last_price) > (last_price-Prediction_avg_now):
                         buy=+1
-                        print (f"{buy} BUYING: {TIME} price:{round(last_price,3)} \n\t {Last_price_avg_long} {last_price} {Prediction_avg_now} {Last_price_avg_now} \n\t------------------------------")
+                        print (f"{buy} BUYING: {TIME} price:{round(last_price,3)} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------")
                     else:buy=0
 
 
