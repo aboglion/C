@@ -13,17 +13,17 @@ def Avg_ord_list(ord_list):
 
 def Analyze_market(book):
     bids,asks=book
+    half=len(bids)//2
     # הנחה: רשימת הביקוש ממוינת מהגבוה לנמוך לפי מחיר, ורשימת ההיצע ממוינת מהנמוך לגבוה לפי מחיר
     Last_Price=Avg_ord_list([bids[0],asks[0]])
     REV_price=Avg_ord_list([bids[-1],asks[-1]])
     # spread = asks[0]["PRICE"] - bids[0]["PRICE"]
-    avg_bid_price = Avg_ord_list(bids)                                                      
-    avg_ask_price = Avg_ord_list(asks)
+    avg_bid_price = Avg_ord_list(bids[:half])                                                      
+    avg_ask_price = Avg_ord_list(asks[:half])
     avg_price=(avg_bid_price+avg_ask_price)/2
-    REV_avg_bid_price=Avg_ord_list(bids[::-1])
-    REV_avg_ask_price=Avg_ord_list(asks[::-1])
+    REV_avg_bid_price=Avg_ord_list(bids[half:])
+    REV_avg_ask_price=Avg_ord_list(asks[half:])
     REV_avg_price=(REV_avg_bid_price+REV_avg_ask_price)/2
-
     # חישוב ממוצע משקולל
     AVG_Prediction=(avg_price+REV_avg_price)/2
     # הסטיית תקן

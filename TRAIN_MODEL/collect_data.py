@@ -12,7 +12,20 @@ from Plugins_funcs.html_chart import Html_chart
 # from Plugins_funcs.bitfinex_book_data import Bitfinex_book_data
 from Plugins_funcs.BINANCE_book_data import Binance_book_data
 
-# SYMBOL = "tSOLUSD" #"tBTCUSD"  # all=>https://api-pub.bitfinex.com/v2/tickers?symbols=ALL
+# SYMBOL = "tSOLUSD"import threading
+import time
+import os,sys
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+sys.path.append(os.path.join(ROOT_DIR, '..'))
+
+# from Plugins_funcs.bitfinex_book_data import Bitfinex_book_data
+from Plugins_funcs.analyze_market import Analyze_market
+from Plugins_funcs.save_data_to_file import Save_data_to_file
+from Plugins_funcs.html_chart import Html_chart
+# from Plugins_funcs.bitfinex_book_data import Bitfinex_book_data
+from Plugins_funcs.BINANCE_book_data import Binance_book_data
+ #"tBTCUSD"  # all=>https://api-pub.bitfinex.com/v2/tickers?symbols=ALL
 # url_symbols = "https://api.binance.com/api/v3/exchangeInfo"
 
 h=60*60
