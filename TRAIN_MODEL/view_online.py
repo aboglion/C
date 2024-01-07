@@ -43,7 +43,8 @@ def main():
     STATUS="---"
 
 
-    buy,sell,price_up=0,0,0
+    buyed=False
+    buyconfig_counter=0
     while life_time > 0:
         try:
             book_data = Binance_book_data(symbol)
@@ -75,9 +76,25 @@ def main():
 
                     if  Last_price_avg_long>last_price>Prediction_avg_now>Last_price_avg_now and\
                         (Last_price_avg_long-last_price) > (last_price-Prediction_avg_now):
-                        buy=+1
-                        print (f"{buy} BUYING: {TIME} price:{round(last_price,3)} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------")
-                    else:buy=0
+                        buyconfig_counter+=1
+                    else:buyconfig_counter=0
+
+                    if buyconfig_counter>=3 and not buyed:
+                        buyed=True
+                        buyed_prics=last_price
+                    st= (f"{buyed}{buyconfig_counter} BUYING: {TIME} price:{last_price} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------\n")
+                    with open(f"./{symbol} {date}.log", "+a") as logfile:
+                        logfile.write(st)
+                    if buyed and last_price>Last_price_avg_now>Prediction_avg_now>Last_price_avg_long \
+                        ((buyed_prics - last_price) / last_price) * 100>0.1:
+                        buyed=False
+                        st =f"\n=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
+                        st+=f"\t#| PROF=> {buyed_prics}-{last_price} => {((buyed_prics - last_price) / last_price) * 100}% |#\n"
+                        st+= (f"\t#{last_price}#{Last_price_avg_now}#{Prediction_avg_now}#{Last_price_avg_long} \n\t------------------------------\n\n")
+                        with open(f"./{symbol} {date}.log", "+a") as logfile:
+                            logfile.write(st)
+                    else : print ("\t#",TIME,last_price)
+
 
 
                     output=f'{round(last_price,3)},{Last_price_avg_now},{Prediction_avg_now},{Last_price_avg_long} ,{TIME}\n'
