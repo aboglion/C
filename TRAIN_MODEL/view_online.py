@@ -78,17 +78,23 @@ def main():
                     #----------#
                     if  Last_price_avg_long>last_price>Prediction_avg_now>Last_price_avg_now and\
                         (Last_price_avg_long-last_price) > (last_price-Prediction_avg_now):
-                        if buycTime_counter==0:buycTime_counter=int(time.time())
-                        elif int(time.time())-buycTime_counter<4 :buyc_counter+=1
-                        else:buyc_counter=0
-                   
+                        if buycTime_counter==0:
+                            buycTime_counter=int(time.time())
+                            #רצוף מתחת ל 5 שניות יש אותו  שלוש פעמים 
+                        if int(time.time())-buycTime_counter<=5:
+                            buyc_counter+=1
+                        else:
+                            buyc_counter=0
+                            print("buycTime_counter")
+                        buycTime_counter=int(time.time())
 
-                    if buyc_counter>=3 and not buyed:
-                        buyed=True
-                        buyed_prics=last_price
-                        st= (f"{buyed}{buycTime_counter}@{buycTime_counter} BUYING: {TIME} price:{last_price} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------\n")
-                        with open(f"./{symbol} {date}.log", "+a") as logfile:
-                            logfile.write(st)
+                        if buyc_counter>=3 and not buyed:
+                            buyed=True
+                            buyed_prics=last_price
+                            st= (f"{buyed}{buycTime_counter}@{buycTime_counter} BUYING: {TIME} price:{last_price} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------\n")
+                            with open(f"./{symbol} {date}.log", "+a") as logfile:
+                                logfile.write(st)
+
                     #-----------#
                     #  SEELING  #
                     #-----------#
@@ -100,7 +106,8 @@ def main():
                         st+= (f"\t#{last_price}#{Last_price_avg_now}#{Prediction_avg_now}#{Last_price_avg_long} \n\t------------------------------\n\n")
                         with open(f"./{symbol} {date}.log", "+a") as logfile:
                             logfile.write(st)
-                    else : print ("\t#",TIME,last_price)
+                    else :
+                        print ("\t#",TIME,last_price)
 
 
 
