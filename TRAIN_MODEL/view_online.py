@@ -44,7 +44,7 @@ def main():
 
 
     buyed=False
-    buyconfig_counter=0
+    buycTime_counter,buyc_counter=0,0
     while life_time > 0:
         try:
             book_data = Binance_book_data(symbol)
@@ -55,6 +55,7 @@ def main():
                 TIME=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
                 date=TIME[9:]
                 TIME=TIME[:9]
+                
 
                 #cvsChart(f"./{symbol} {date}.cvs")
                 #exit(1)
@@ -72,19 +73,25 @@ def main():
                     Prediction_avg_now=round((sum(AVG_LIST_Prediction[-short_len_range:])/short_len_range),3)
                     Last_price_avg_now=round((sum(AVG_LIST_last_prices[-short_len_range:])/short_len_range),3)
                     Last_price_avg_long=round((sum(AVG_LIST_last_prices)/Len__AVG_LIST_last_prices),3)
-
-
+                    #----------#
+                    #  BUYING  #
+                    #----------#
                     if  Last_price_avg_long>last_price>Prediction_avg_now>Last_price_avg_now and\
                         (Last_price_avg_long-last_price) > (last_price-Prediction_avg_now):
-                        buyconfig_counter+=1
-                    else:buyconfig_counter=0
+                        if buycTime_counter==0:buycTime_counter=int(time.time())
+                        elif int(time.time())-buycTime_counter<4 :buyc_counter+=1
+                        else:buyc_counter=0
+                   
 
-                    if buyconfig_counter>=3 and not buyed:
+                    if buyc_counter>=3 and not buyed:
                         buyed=True
                         buyed_prics=last_price
-                    st= (f"{buyed}{buyconfig_counter} BUYING: {TIME} price:{last_price} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------\n")
-                    with open(f"./{symbol} {date}.log", "+a") as logfile:
-                        logfile.write(st)
+                        st= (f"{buyed}{buycTime_counter}@{buycTime_counter} BUYING: {TIME} price:{last_price} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------\n")
+                        with open(f"./{symbol} {date}.log", "+a") as logfile:
+                            logfile.write(st)
+                    #-----------#
+                    #  SEELING  #
+                    #-----------#
                     if buyed and last_price>Last_price_avg_now>Prediction_avg_now>Last_price_avg_long \
                         ((buyed_prics - last_price) / last_price) * 100>0.1:
                         buyed=False
