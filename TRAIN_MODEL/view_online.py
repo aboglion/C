@@ -12,7 +12,7 @@ from Plugins_funcs.BINANCE_book_data import Binance_book_data
 # url_symbols = "https://api.binance.com/api/v3/exchangeInfo"
 
 h=60*60
-LIFE_TIME = h
+LIFE_TIME = h*4
 JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
 long_len_range=100
@@ -33,6 +33,35 @@ top_10_binance_symbols = [
 ]
 
 
+
+
+def check_contenuation(last_time,counter,buyed,symbol,times=20):
+    date=time.strftime("%d.%m.%y", time.localtime())
+    timeing=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
+
+    if int(time.time())-last_time<=6:
+        counter+=1
+        st=f'\n{"BUYING" if not buyed else "SELL"}:[0k] {timeing} | CONUTER:{counter} time_diff =>{int(int(time.time())-last_time)}'
+        with open(f"./{symbol} {date}.log", "+a") as logfile:
+            logfile.write(st)
+    else: 
+        counter=0
+        st=f'\n{"BUYING" if not buyed else "SELL"}:[X] {timeing} | CONUTER:{counter} time_diff =>{int(int(time.time())-last_time)}'
+        with open(f"./{symbol} {date}.log", "+a") as logfile:
+            logfile.write(st)
+
+    last_time=int(time.time())
+
+    if counter>times:
+        counter=0
+        return True,last_time,counter
+    else: return False,last_time,counter
+
+
+                            
+
+
+
 def main():
 
 
@@ -43,18 +72,22 @@ def main():
     STATUS="---"
 
 
+    counter=0
+    last_time=time.time()  
+    res_contenuation=False  
     buyed=False
-    buycTime_counter,buyc_counter=0,0
+
     while life_time > 0:
+        TIME=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
+        date=TIME[9:]
+        TIME=TIME[:9]
         try:
             book_data = Binance_book_data(symbol)
             if book_data:
                 analyzed_data = Analyze_market(book_data)
                 Prediction_price=analyzed_data["Prediction_price"]
                 last_price=round(analyzed_data["Last_Price"],3)
-                TIME=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
-                date=TIME[9:]
-                TIME=TIME[:9]
+
                 
 
                 #cvsChart(f"./{symbol} {date}.cvs")
@@ -76,38 +109,37 @@ def main():
                     #----------#
                     #  BUYING  #
                     #----------#
-                    if  Last_price_avg_long>last_price>Prediction_avg_now>Last_price_avg_now and\
-                        (Last_price_avg_long-last_price) > (last_price-Prediction_avg_now):
-                        if buycTime_counter==0:
-                            buycTime_counter=int(time.time())
-                            #רצוף מתחת ל 5 שניות יש אותו  שלוש פעמים 
-                        if int(time.time())-buycTime_counter<=5:
-                            buyc_counter+=1
-                        else:
-                            buyc_counter=0
-                            print("buycTime_counter")
-                        buycTime_counter=int(time.time())
-
-                        if buyc_counter>=3 and not buyed:
-                            buyed=True
-                            buyed_prics=last_price
-                            st= (f"{buyed}{buycTime_counter}@{buycTime_counter} BUYING: {TIME} price:{last_price} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------\n")
-                            with open(f"./{symbol} {date}.log", "+a") as logfile:
-                                logfile.write(st)
+                    
+                    if not buyed and\
+                        last_price>Last_price_avg_long and \
+                        last_price>Last_price_avg_now and \
+                        last_price>Prediction_avg_now and\
+                        (Prediction_avg_now-Last_price_avg_long) > (last_price-Prediction_avg_now):
+                            res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol)
+                            if res_contenuation :
+                                buyed=True
+                                buyed_prics=last_price
+                                st= f"\n{buyed} BUYING: {TIME} price:{last_price} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------\n"
+                                with open(f"./{symbol} {date}.log", "+a") as logfile:
+                                    logfile.write(st)
+                            
 
                     #-----------#
                     #  SEELING  #
                     #-----------#
-                    if buyed and last_price>Last_price_avg_now>Prediction_avg_now>Last_price_avg_long \
-                        ((buyed_prics - last_price) / last_price) * 100>0.1:
-                        buyed=False
-                        st =f"\n=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
-                        st+=f"\t#| PROF=> {buyed_prics}-{last_price} => {((buyed_prics - last_price) / last_price) * 100}% |#\n"
-                        st+= (f"\t#{last_price}#{Last_price_avg_now}#{Prediction_avg_now}#{Last_price_avg_long} \n\t------------------------------\n\n")
-                        with open(f"./{symbol} {date}.log", "+a") as logfile:
-                            logfile.write(st)
-                    else :
-                        print ("\t#",TIME,last_price)
+                    if buyed and last_price<Last_price_avg_now<Prediction_avg_now<Last_price_avg_long: #\
+                        #and ((last_price - buyed_prics) / buyed_prics) * 100>0.1:
+                        res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,6)
+                        
+                        if res_contenuation:
+                            buyed=False
+                            st =f"\n=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
+                            st+=f"\t#| PROF=>{last_price} - {buyed_prics}=> {((last_price-buyed_prics) / buyed_prics) * 100}% |#\n"
+                            st+= (f"\t#{last_price}#{Last_price_avg_now}#{Prediction_avg_now}#{Last_price_avg_long} \n\t------------------------------\n\n")
+                            with open(f"./{symbol} {date}.log", "+a") as logfile:
+                                logfile.write(st)
+                        else :
+                            print ("\t#",TIME,last_price)
 
 
 
