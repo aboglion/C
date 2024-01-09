@@ -81,6 +81,7 @@ def main():
         TIME=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
         date=TIME[9:]
         TIME=TIME[:9]
+
         try:
             book_data = Binance_book_data(symbol)
             if book_data:
@@ -89,15 +90,12 @@ def main():
                 last_price=round(analyzed_data["Last_Price"],3)
 
                 
-
-                #cvsChart(f"./{symbol} {date}.cvs")
-                #exit(1)
-                
+              
                 Len__AVG_LIST_last_prices=len(AVG_LIST_last_prices)
                 
                 AVG_LIST_Prediction.append(Prediction_price)
                 AVG_LIST_last_prices.append(last_price)
-
+                Action=0  #0 -> nothing 1-> buy  2-> sell
                 if len(AVG_LIST_Prediction)>short_len_range:
                     del AVG_LIST_Prediction[0]
                 if len(AVG_LIST_last_prices)>long_len_range:
@@ -106,33 +104,41 @@ def main():
                     Prediction_avg_now=round((sum(AVG_LIST_Prediction[-short_len_range:])/short_len_range),3)
                     Last_price_avg_now=round((sum(AVG_LIST_last_prices[-short_len_range:])/short_len_range),3)
                     Last_price_avg_long=round((sum(AVG_LIST_last_prices)/Len__AVG_LIST_last_prices),3)
+                   
                     #----------#
                     #  BUYING  #
                     #----------#
-                    
                     if not buyed and\
                         last_price>Last_price_avg_long and \
                         last_price>Last_price_avg_now and \
                         last_price>Prediction_avg_now and\
-                        (Prediction_avg_now-Last_price_avg_long) > (last_price-Prediction_avg_now):
-                            res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol)
+                        (Prediction_avg_now-Last_price_avg_long) > 2.5*(last_price-Prediction_avg_now):
+                            res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,5)
                             if res_contenuation :
                                 buyed=True
+                                Action=1
                                 buyed_prics=last_price
                                 st= f"\n{buyed} BUYING: {TIME} price:{last_price} \n\t#{Last_price_avg_long}#{last_price}#{Prediction_avg_now}#{Last_price_avg_now} \n\t{(Last_price_avg_long-last_price)} > {(last_price-Prediction_avg_now)}\n\t------------------------------\n"
                                 with open(f"./{symbol} {date}.log", "+a") as logfile:
                                     logfile.write(st)
+
                             
 
                     #-----------#
                     #  SEELING  #
                     #-----------#
-                    if buyed and last_price<Last_price_avg_now<Prediction_avg_now<Last_price_avg_long: #\
+                    if buyed and \
+                    last_price<Last_price_avg_long and \
+                    last_price<Last_price_avg_now and \
+                    last_price<Prediction_avg_now and\
+                    (Last_price_avg_long-Prediction_avg_now) > (Prediction_avg_now-last_price):
                         #and ((last_price - buyed_prics) / buyed_prics) * 100>0.1:
                         res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,6)
                         
                         if res_contenuation:
                             buyed=False
+                            Action=2
+                            profet=round(((last_price-buyed_prics) / buyed_prics) * 100,4)
                             st =f"\n=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
                             st+=f"\t#| PROF=>{last_price} - {buyed_prics}=> {((last_price-buyed_prics) / buyed_prics) * 100}% |#\n"
                             st+= (f"\t#{last_price}#{Last_price_avg_now}#{Prediction_avg_now}#{Last_price_avg_long} \n\t------------------------------\n\n")
@@ -144,6 +150,9 @@ def main():
 
 
                     output=f'{round(last_price,3)},{Last_price_avg_now},{Prediction_avg_now},{Last_price_avg_long} ,{TIME}\n'
+                    if Action:
+                        output+=f'{buyed_prics},{TIME}\n' if Action==1 else f'{buyed_prics},{TIME},{profet}%\n'
+                        Action=0
                     with open(f"./{symbol} {date}.cvs", "+a") as logfile:
                         logfile.write(output)
 
