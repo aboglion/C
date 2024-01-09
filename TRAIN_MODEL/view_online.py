@@ -82,6 +82,9 @@ def main():
         date=TIME[9:]
         TIME=TIME[:9]
 
+        # cvsChart(f"./{symbol} {date}.cvs")
+        # exit(1)
+
         try:
             book_data = Binance_book_data(symbol)
             if book_data:
@@ -144,14 +147,13 @@ def main():
                             st+= (f"\t#{last_price}#{Last_price_avg_now}#{Prediction_avg_now}#{Last_price_avg_long} \n\t------------------------------\n\n")
                             with open(f"./{symbol} {date}.log", "+a") as logfile:
                                 logfile.write(st)
-                        else :
-                            print ("\t#",TIME,last_price)
+          
 
 
 
                     output=f'{round(last_price,3)},{Last_price_avg_now},{Prediction_avg_now},{Last_price_avg_long} ,{TIME}\n'
                     if Action:
-                        output+=f'{buyed_prics},{TIME}\n' if Action==1 else f'{buyed_prics},{TIME},{profet}%\n'
+                        output+=f'{buyed_prics},{TIME}\n' if Action==1 else f'{last_price},{TIME},{profet}%\n'
                         Action=0
                     with open(f"./{symbol} {date}.cvs", "+a") as logfile:
                         logfile.write(output)
