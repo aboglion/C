@@ -1,12 +1,13 @@
 import plotly.graph_objs as go
 from plotly.offline import plot
-import os
+import os,time
 
 
 
 
 def cvsChart(csv_file):
-    name_=os.path.basename(csv_file).split('.')[0]
+    name_=os.path.basename(csv_file)[:-4]+time.strftime(" TO %H.%M", time.localtime())
+
     # פתח את הקובץ CSV וקרא את הנתונים ישירות
     with open(csv_file, 'r') as file:
         lines = file.readlines()

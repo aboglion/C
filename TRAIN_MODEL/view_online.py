@@ -36,7 +36,7 @@ top_10_binance_symbols = [
 
 
 def check_contenuation(last_time,counter,buyed,symbol,times=20):
-    date=time.strftime("%d.%m.%y", time.localtime())
+    date=time.strftime("%d.%m.%y_%H", time.localtime())
     timeing=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
 
     if int(time.time())-last_time<=6:
@@ -64,7 +64,6 @@ def check_contenuation(last_time,counter,buyed,symbol,times=20):
 
 def main():
 
-
     AVG_LIST_Prediction=[]
     AVG_LIST_last_prices=[]
     life_time = LIFE_TIME
@@ -76,11 +75,15 @@ def main():
     last_time=time.time()  
     res_contenuation=False  
     buyed=False
+    date=time.strftime("%d.%m.%y_%H", time.localtime())
 
+    
     while life_time > 0:
-        TIME=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
-        date=TIME[9:]
-        TIME=TIME[:9]
+        if not date==time.strftime("%d.%m.%y_%H", time.localtime()) :
+            if os.path.exists(f"./{symbol} {date}.cvs"):cvsChart(f"./{symbol} {date}.cvs")
+            date=time.strftime("%d.%m.%y_%H", time.localtime())
+
+        TIME=time.strftime("%H:%M:%S", time.localtime())
 
         # cvsChart(f"./{symbol} {date}.cvs")
         # exit(1)
