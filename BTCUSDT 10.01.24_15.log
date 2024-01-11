@@ -1,0 +1,65 @@
+
+SELL:[X] 15:08:04 10.01.24 | CONUTER:0 time_diff =>2813
+SELL:[0k] 15:08:09 10.01.24 | CONUTER:1 time_diff =>5
+SELL:[0k] 15:08:11 10.01.24 | CONUTER:2 time_diff =>2
+SELL:[0k] 15:08:14 10.01.24 | CONUTER:3 time_diff =>3
+SELL:[0k] 15:08:16 10.01.24 | CONUTER:4 time_diff =>2
+SELL:[0k] 15:08:18 10.01.24 | CONUTER:5 time_diff =>2
+SELL:[0k] 15:08:21 10.01.24 | CONUTER:6 time_diff =>3
+SELL:[0k] 15:08:23 10.01.24 | CONUTER:7 time_diff =>2
+=======<><><><><><><><><><><><><><><><><>======
+    SELLING: 15:08:23 price:44888.224
+	#| PROF=>44888.224 - 45350.01=> -1.0182709992787213% |#
+	#44888.224#44865.561#44863.896#44705.878 
+	------------------------------
+
+
+BUYING:[X] 15:20:52 10.01.24 | CONUTER:0 time_diff =>749
+BUYING:[X] 15:21:29 10.01.24 | CONUTER:0 time_diff =>37
+BUYING:[0k] 15:21:32 10.01.24 | CONUTER:1 time_diff =>3
+BUYING:[X] 15:39:17 10.01.24 | CONUTER:0 time_diff =>1065
+BUYING:[0k] 15:39:19 10.01.24 | CONUTER:1 time_diff =>2
+BUYING:[0k] 15:39:22 10.01.24 | CONUTER:2 time_diff =>3
+BUYING:[0k] 15:39:24 10.01.24 | CONUTER:3 time_diff =>2
+BUYING:[0k] 15:39:26 10.01.24 | CONUTER:4 time_diff =>2
+BUYING:[0k] 15:39:29 10.01.24 | CONUTER:5 time_diff =>3
+BUYING:[0k] 15:39:31 10.01.24 | CONUTER:6 time_diff =>2
+BUYING:[0k] 15:39:34 10.01.24 | CONUTER:7 time_diff =>3
+True BUYING: 15:39:33 price:45064.489 
+	#45126.258#45064.489#45091.899#45091.009 
+	61.76900000000023 > -27.409999999996217
+	------------------------------
+
+SELL:[X] 15:48:05 10.01.24 | CONUTER:0 time_diff =>511
+SELL:[X] 15:50:49 10.01.24 | CONUTER:0 time_diff =>164
+SELL:[0k] 15:50:52 10.01.24 | CONUTER:1 time_diff =>3
+SELL:[0k] 15:50:54 10.01.24 | CONUTER:2 time_diff =>2
+SELL:[0k] 15:50:56 10.01.24 | CONUTER:3 time_diff =>2
+SELL:[0k] 15:50:59 10.01.24 | CONUTER:4 time_diff =>3
+SELL:[0k] 15:51:01 10.01.24 | CONUTER:5 time_diff =>2
+SELL:[0k] 15:51:04 10.01.24 | CONUTER:6 time_diff =>3
+SELL:[X] 15:52:10 10.01.24 | CONUTER:0 time_diff =>66
+SELL:[X] 15:53:00 10.01.24 | CONUTER:0 time_diff =>50
+SELL:[0k] 15:53:02 10.01.24 | CONUTER:1 time_diff =>2
+SELL:[X] 15:53:10 10.01.24 | CONUTER:0 time_diff =>8
+SELL:[0k] 15:53:12 10.01.24 | CONUTER:1 time_diff =>2
+SELL:[0k] 15:53:14 10.01.24 | CONUTER:2 time_diff =>2
+SELL:[0k] 15:53:17 10.01.24 | CONUTER:3 time_diff =>3
+SELL:[0k] 15:53:19 10.01.24 | CONUTER:4 time_diff =>2
+SELL:[0k] 15:53:22 10.01.24 | CONUTER:5 time_diff =>3
+SELL:[0k] 15:53:24 10.01.24 | CONUTER:6 time_diff =>2
+SELL:[X] 15:53:34 10.01.24 | CONUTER:0 time_diff =>10
+SELL:[X] 15:53:59 10.01.24 | CONUTER:0 time_diff =>25
+SELL:[0k] 15:54:01 10.01.24 | CONUTER:1 time_diff =>2
+SELL:[0k] 15:54:06 10.01.24 | CONUTER:2 time_diff =>5
+SELL:[0k] 15:54:09 10.01.24 | CONUTER:3 time_diff =>3
+SELL:[0k] 15:54:11 10.01.24 | CONUTER:4 time_diff =>2
+SELL:[0k] 15:54:14 10.01.24 | CONUTER:5 time_diff =>3
+SELL:[0k] 15:54:16 10.01.24 | CONUTER:6 time_diff =>2
+SELL:[0k] 15:54:19 10.01.24 | CONUTER:7 time_diff =>3
+=======<><><><><><><><><><><><><><><><><>======
+    SELLING: 15:54:18 price:45155.01
+	#| PROF=>45155.01 - 45064.489=> 0.20086991333686405% |#
+	#45155.01#45144.908#45145.343#45111.094 
+	------------------------------
+

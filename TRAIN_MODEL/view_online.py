@@ -15,8 +15,8 @@ h=60*60
 LIFE_TIME = h*4
 JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
-long_len_range=100
-short_len_range=20
+long_len_range=400
+short_len_range=100
 
 top_10_binance_symbols = [
     "BTCUSDT",
@@ -115,11 +115,11 @@ def main():
                     #  BUYING  #
                     #----------#
                     if not buyed and\
-                        last_price>Last_price_avg_long and \
-                        last_price>Last_price_avg_now and \
-                        last_price>Prediction_avg_now and\
-                        (Prediction_avg_now-Last_price_avg_long) > 2.5*(last_price-Prediction_avg_now):
-                            res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,5)
+                        last_price<Last_price_avg_long and \
+                        last_price<Last_price_avg_now and \
+                        last_price<Prediction_avg_now and\
+                        (Last_price_avg_long-Prediction_avg_now) > (Prediction_avg_now-last_price):
+                            res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,6)
                             if res_contenuation :
                                 buyed=True
                                 Action=1
@@ -134,19 +134,20 @@ def main():
                     #  SEELING  #
                     #-----------#
                     if buyed and \
-                    last_price<Last_price_avg_long and \
-                    last_price<Last_price_avg_now and \
-                    last_price<Prediction_avg_now and\
-                    (Last_price_avg_long-Prediction_avg_now) > (Prediction_avg_now-last_price):
+                    last_price>Last_price_avg_long and \
+                    last_price>Last_price_avg_now and \
+                    last_price>Prediction_avg_now and\
+                    (Prediction_avg_now-Last_price_avg_long) > 2.5*(last_price-Prediction_avg_now):
+                    
                         #and ((last_price - buyed_prics) / buyed_prics) * 100>0.1:
                         res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,6)
                         
                         if res_contenuation:
                             buyed=False
                             Action=2
-                            profet=round(((last_price-buyed_prics) / buyed_prics) * 100,4)
+                            profet=round(((buyed_prics-last_price) / buyed_prics) * 100,4)
                             st =f"\n=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
-                            st+=f"\t#| PROF=>{last_price} - {buyed_prics}=> {((last_price-buyed_prics) / buyed_prics) * 100}% |#\n"
+                            st+=f"\t#| PROF=>{last_price} - {buyed_prics}=> {profet}% |#\n"
                             st+= (f"\t#{last_price}#{Last_price_avg_now}#{Prediction_avg_now}#{Last_price_avg_long} \n\t------------------------------\n\n")
                             with open(f"./{symbol} {date}.log", "+a") as logfile:
                                 logfile.write(st)
