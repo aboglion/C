@@ -74,7 +74,7 @@ def main():
     counter=0
     last_time=time.time()  
     res_contenuation=False  
-    buyed=False
+    buyed,UP,DOWN=False,False,False
     date=time.strftime("%d.%m.%y_%H", time.localtime())
 
     
@@ -111,16 +111,24 @@ def main():
                     Last_price_avg_now=round((sum(AVG_LIST_last_prices[-short_len_range:])/short_len_range),3)
                     Last_price_avg_long=round((sum(AVG_LIST_last_prices)/Len__AVG_LIST_last_prices),3)
                    
+                    if last_price>Last_price_avg_now>Last_price_avg_long :
+                        UP=True
+                        DOWN=False
+                    elif not (Last_price_avg_long==last_price) and UP:
+                        UP=False
+
+                    if Last_price_avg_now>last_price>Last_price_avg_long :
+                        DOWN=True
+                        UP=False
+                    elif not (last_price>=Last_price_avg_now) and DOWN:
+                        DOWN=False
+
                     #----------#
                     #  BUYING  #
                     #----------#
-                    if not buyed and\
-                        last_price<Last_price_avg_long and \
-                        last_price<Last_price_avg_now and \
-                        last_price<Prediction_avg_now and\
-                        (Last_price_avg_long-Prediction_avg_now) > (Prediction_avg_now-last_price):
-                            res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,6)
-                            if res_contenuation :
+                    if not buyed and UP and Last_price_avg_long==last_price :
+                            # res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,6)
+                            # if res_contenuation :
                                 buyed=True
                                 Action=1
                                 buyed_prics=last_price
@@ -133,11 +141,7 @@ def main():
                     #-----------#
                     #  SEELING  #
                     #-----------#
-                    if buyed and \
-                    last_price>Last_price_avg_long and \
-                    last_price>Last_price_avg_now and \
-                    last_price>Prediction_avg_now and\
-                    (Prediction_avg_now-Last_price_avg_long) > 2.5*(last_price-Prediction_avg_now):
+                    if buyed and DOWN and 
                     
                         #and ((last_price - buyed_prics) / buyed_prics) * 100>0.1:
                         res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,6)
