@@ -118,7 +118,7 @@ def main():
                         UP=False
 
                     if Last_price_avg_now>last_price>Last_price_avg_long :
-                        DOWN=True
+                        DOWN=True 
                         UP=False
                     elif not (last_price>=Last_price_avg_now) and DOWN:
                         DOWN=False
