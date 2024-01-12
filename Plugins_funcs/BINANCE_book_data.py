@@ -5,7 +5,7 @@ import time
 
 def Binance_book_data(symbol):
     # התאמת ה-URL ל-API של Binance
-    url_book = f"https://api.binance.com/api/v3/depth?symbol={symbol}&limit=200"
+    url_book = f"https://api.binance.com/api/v3/depth?symbol={symbol}&limit=100"
 
     try:
         # הגדרת ניסיונות חוזרים עם backoff factor

@@ -13,25 +13,24 @@ def Avg_ord_list(ord_list):
 
 def Analyze_market(book):
     bids,asks=book
-    half=len(bids)//2
+    # half=len(bids)//2
     # הנחה: רשימת הביקוש ממוינת מהגבוה לנמוך לפי מחיר, ורשימת ההיצע ממוינת מהנמוך לגבוה לפי מחיר
     Last_Price=Avg_ord_list([bids[0],asks[0]])
-    REV_price=Avg_ord_list([bids[-1],asks[-1]])
-    # spread = asks[0]["PRICE"] - bids[0]["PRICE"]
-    avg_bid_price = Avg_ord_list(bids[:half])                                                      
-    avg_ask_price = Avg_ord_list(asks[:half])
-    avg_price=(avg_bid_price+avg_ask_price)/2
-    REV_avg_bid_price=Avg_ord_list(bids[half:])
-    REV_avg_ask_price=Avg_ord_list(asks[half:])
-    REV_avg_price=(REV_avg_bid_price+REV_avg_ask_price)/2
-    # חישוב ממוצע משקולל
-    AVG_Prediction=(avg_price+REV_avg_price)/2
-    # הסטיית תקן
-    # bid_std_dev = (sum([(bid["PRICE"] - avg_bid_price)**2 * bid["AMOUNT"] * bid["COUNT"] for bid in bids]) / sum([bid["AMOUNT"] * bid["COUNT"] for bid in bids]))**0.5
-    # ask_std_dev = (sum([(ask["PRICE"] - avg_ask_price)**2 * ask["AMOUNT"] * ask["COUNT"] for ask in asks]) / sum([ask["AMOUNT"] * ask["COUNT"] for ask in asks]))**0.5
+    
+    
+    # Sort bids and asks based on AMOUNT in descending order
+    sorted_bids = sorted(bids, key=lambda x: x['AMOUNT'], reverse=True)
+    sorted_asks = sorted(asks, key=lambda x: x['AMOUNT'], reverse=True)
+
+    # Select top 5 bids and asks
+    top_bids = sorted_bids[:10]
+    top_asks = sorted_asks[:10]
+
+    # Calculate the moving average for the selected bids and asks
+    Prediction_price = Avg_ord_list(top_bids + top_asks)
 
     return {
         'Last_Price': Last_Price,
-        'Prediction_price':AVG_Prediction,
+        'Prediction_price':Prediction_price,
     }
 
