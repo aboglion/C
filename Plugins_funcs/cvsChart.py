@@ -15,9 +15,9 @@ def cvsChart(csv_file):
     # יצירת רשימות עבור הנתונים
     TIME = []
     Last_price = []
-    price_avg_now = []
-    Prediction_avg_now = []
-    Last_price_avg_medium=[]
+    Prediction_avg = []
+    price_avg_short = []
+    price_avg_medium=[]
     price_avg_long = []
     BUY_action_prices=[]
     BUY_action_times = []
@@ -27,11 +27,11 @@ def cvsChart(csv_file):
 
     for line in lines:
         data = line.strip().split(',')
-        if len(data) == 5:
+        if len(data) == 6:
             Last_price.append(float(data[0]))
-            Prediction_avg_now.append(float(data[1]))
-            price_avg_now.append(float(data[2]))
-            Last_price_avg_medium.append(float(data[3]))
+            Prediction_avg.append(float(data[1]))
+            price_avg_short.append(float(data[2]))
+            price_avg_medium.append(float(data[3]))
             price_avg_long.append(float(data[4]))
             TIME.append(data[5].strip())
         if len(data) == 2:
@@ -44,15 +44,15 @@ def cvsChart(csv_file):
                 
     # יצירת סדרות נתונים לגרף בעזרת plotly
     Price = go.Scatter(x=TIME, y=Last_price, mode='lines', name='Price')
-    AVG_SHORT = go.Scatter(x=TIME, y=price_avg_now, mode='lines', name='AVG_SHORT')
-    AVG_medium = go.Scatter(x=TIME, y=Last_price_avg_medium, mode='lines', name='AVG_medium')
+    Prediction = go.Scatter(x=TIME, y=Prediction_avg, mode='lines', name='Prediction')
+    AVG_SHORT = go.Scatter(x=TIME, y=price_avg_short, mode='lines', name='AVG_SHORT')
+    AVG_medium = go.Scatter(x=TIME, y=price_avg_medium, mode='lines', name='AVG_medium')
     AVG_LONG = go.Scatter(x=TIME, y=price_avg_long, mode='lines', name='AVG_LONG')
-    Prediction = go.Scatter(x=TIME, y=Prediction_avg_now, mode='lines', name='Prediction')
     points_buy = go.Scatter(x=BUY_action_times, y=BUY_action_prices, mode='markers', name='קנייה',marker=dict(size=10,))
     points_sell = go.Scatter(x=SELL_action_times, y=SELL_action_prices, mode='markers+text', name='מכירה',text=PROFIT_txt,textposition='top center',marker=dict(size=10,))
 
 
-    data = [Price,AVG_SHORT,AVG_medium,AVG_LONG,Prediction,points_buy,points_sell]
+    data = [Price,Prediction,AVG_SHORT,AVG_medium,AVG_LONG,points_buy,points_sell]
 
     layout = go.Layout(
         title=name_, 

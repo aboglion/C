@@ -12,12 +12,13 @@ from Plugins_funcs.BINANCE_book_data import Binance_book_data
 # url_symbols = "https://api.binance.com/api/v3/exchangeInfo"
 
 h=60*60
-LIFE_TIME = h*4
+LIFE_TIME = h*10
 JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
 long_len_range=800
 medium_len_range=400
 short_len_range=100
+prediction_len_range=10
 
 top_10_binance_symbols = [
     "BTCUSDT",
@@ -59,9 +60,6 @@ def check_contenuation(last_time,counter,buyed,symbol,times=20):
     else: return False,last_time,counter
 
 
-                            
-
-
 
 def main():
 
@@ -73,10 +71,8 @@ def main():
     STATUS="---"
 
 
-    counter=0
-    last_time=time.time()  
-    res_contenuation=False  
     buyed,UP,DOWN=False,False,False
+    Action=0  #0 -> nothing 1-> buy  2-> sell
     date=time.strftime("%d.%m.%y_%H", time.localtime())
 
     
@@ -87,54 +83,46 @@ def main():
 
         TIME=time.strftime("%H:%M:%S", time.localtime())
 
-        # cvsChart(f"./{symbol} {date}.cvs")
-        # exit(1)
+        #cvsChart(f"./{symbol} {date}.cvs")
+        #exit(1)
 
         try:
             book_data = Binance_book_data(symbol)
             if book_data:
                 analyzed_data = Analyze_market(book_data)
-                Prediction_price=analyzed_data["Prediction_price"]
+                Prediction_price=round(analyzed_data["Prediction_price"],3)
                 last_price=round(analyzed_data["Last_Price"],3)
 
                 
               
-                Len__AVG_LIST_last_prices=len(AVG_LIST_last_prices)
-                
-                AVG_LIST_Prediction.append(Prediction_price)
+                #----- collect data ---------------- 
                 AVG_LIST_last_prices.append(last_price)
-                Action=0  #0 -> nothing 1-> buy  2-> sell
-                if len(AVG_LIST_Prediction)>short_len_range:
-                    del AVG_LIST_Prediction[0]
+
                 if len(AVG_LIST_last_prices)>long_len_range:
                     del AVG_LIST_last_prices[0]
-
-
-                    Prediction_avg_now=round((sum(AVG_LIST_Prediction[-short_len_range:])/short_len_range),3)
-                    Last_price_avg_now=round((sum(AVG_LIST_last_prices[-short_len_range:])/short_len_range),3)
+                #-----------------------data collected -v--
+                    
+                    Last_price_avg_short=round((sum(AVG_LIST_last_prices[-short_len_range:])/short_len_range),3)
                     Last_price_avg_medium=round((sum(AVG_LIST_last_prices[-medium_len_range:])/medium_len_range),3)
-                    Last_price_avg_long=round((sum(AVG_LIST_last_prices)/Len__AVG_LIST_last_prices),3)
+                    Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),3)
                     
 
-                    if last_price>Last_price_avg_long>Last_price_avg_now :
+                    if last_price>Last_price_avg_long>Last_price_avg_short :
                         UP=True
                         DOWN=False
-                    elif UP and not (Last_price_avg_now>=Last_price_avg_long) :
+                    elif UP and not (Last_price_avg_short>=Last_price_avg_long) :
                         UP=False
 
-                    #if Last_price_avg_now>last_price>Last_price_avg_long :
+                    #if Last_price_avg_short>last_price>Last_price_avg_long :
                       #  DOWN=True 
                       #  UP=False
-                   # elif DOWN and not (last_price>=Last_price_avg_now) :
+                   # elif DOWN and not (last_price>=Last_price_avg_short) :
                     #    DOWN=False
 
                     #----------#
                     #  BUYING  #
                     #----------#
-                    if not buyed and UP and Last_price_avg_now>=Last_price_avg_long :
-                            # res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,6)
-                            # if res_contenuation :
-                                
+                    if not buyed and UP and last_price>Last_price_avg_short>Last_price_avg_medium>Last_price_avg_long :
                                 Action=1
                                 buyed_prics=last_price
                                 st= f"\n BUYING: {TIME} price:{last_price} \n"
@@ -144,12 +132,8 @@ def main():
                     #-----------#
                     #  SEELING  #
                     #-----------#
-                    #if buyed and DOWN and last_price>=Last_price_avg_now:
-                    if (buyed and (Last_price_avg_now>last_price>Last_price_avg_long) and 
-                        (Last_price_avg_now-last_price)<=(last_price-Last_price_avg_long)) :
-                        #and ((last_price - buyed_prics) / buyed_prics) * 100>0.1:
-                        #res_contenuation,last_time,counter=check_contenuation(last_time,counter,buyed,symbol,6)
-                        #if res_contenuation:
+                    #if buyed and DOWN and last_price>=Last_price_avg_short:
+                    if buyed and (Last_price_avg_long<Last_price_avg_medium<Last_price_avg_short<last_price) : 
                             Action=2
                             profet=round(((buyed_prics-last_price) / buyed_prics) * 100,4)
                             st =f"\n=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
@@ -160,12 +144,12 @@ def main():
 
                 #==== LOG IT ======#
             
-                    output=f'{round(last_price,3)},{Prediction_avg_now},{Last_price_avg_now},{Last_price_avg_medium},{Last_price_avg_long},{TIME}\n'
+                    output=f'{round(last_price,3)},{Prediction_price},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{TIME}\n'
                     if Action:
                         if Action==1:
                             buyed=True
                             output+=f'{buyed_prics},{TIME}\n'
-                        else:
+                        elif Action==2:
                             buyed=False
                             f'{last_price},{TIME},{profet}%\n'
                         Action=0
@@ -173,7 +157,7 @@ def main():
                         logfile.write(output)
 
                 else:
-                    print("collecting data.. :",((Len__AVG_LIST_last_prices+1)/long_len_range)*100,"%")
+                    print("collecting data.. :",((len(AVG_LIST_last_prices)+1)/long_len_range)*100,"%")
                     
                     
                 
