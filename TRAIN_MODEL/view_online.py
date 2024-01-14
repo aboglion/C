@@ -16,9 +16,9 @@ LIFE_TIME = h*10
 JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
 long_len_range=800
-medium_len_range=400
+medium_len_range=401 #תמיד להגדיר אותו אי זוגי
 short_len_range=100
-prediction_len_range=10
+prediction_len_range=5 
 
 top_10_binance_symbols = [
     "BTCUSDT",
@@ -95,32 +95,45 @@ def main():
               
                 #----- collect data ---------------- 
                 AVG_LIST_last_prices.append(last_price)
+                AVG_LIST_Prediction.append(Prediction_price)
 
                 if len(AVG_LIST_last_prices)>long_len_range:
                     del AVG_LIST_last_prices[0]
+                if len(AVG_LIST_Prediction)>prediction_len_range:
+                    del AVG_LIST_Prediction[0]
                 #-----------------------data collected -v--
-                    
-                    Last_price_avg_short=round((sum(AVG_LIST_last_prices[-short_len_range:])/short_len_range),3)
-                    Last_price_avg_medium=round((sum(AVG_LIST_last_prices[-medium_len_range:])/medium_len_range),3)
-                    Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),3)
-                    
+                    short=AVG_LIST_last_prices[-short_len_range:]
+                    medium=AVG_LIST_last_prices[-medium_len_range:]
 
-                    if Last_price_avg_long>last_price and\
-                        Last_price_avg_long>Last_price_avg_short and \
-                        Last_price_avg_long>Last_price_avg_medium:
-                        UP_1=True
-                    elif UP_1 and (last_price>Last_price_avg_long ):
-                    #                >Last_price_avg_short>Last_price_avg_medium)\
-                    #      and (2*(Last_price_avg_short-Last_price_avg_medium)< (Last_price_avg_long-Last_price_avg_short)):
-                        UP=True
-                    else:
-                        UP_1=False
-                        UP=False
+                    Last_price_avg_short=round((sum(short)/short_len_range),3)
+                    Last_price_avg_medium=round((sum(medium)/medium_len_range),3)
+                    Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),3)
+                    Prediction_AVG=round((sum(AVG_LIST_Prediction)/prediction_len_range),3)
+
+                    medium_LenPart=medium_len_range//2
+                    medium_PART1_avg=round((sum(medium[:medium_LenPart+1])/medium_LenPart),3)
+                    medium_PART2_avg=round((sum(medium[medium_LenPart+1:])/medium_LenPart),3)
+
+                    # if Last_price_avg_long>last_price and\
+                    #     Last_price_avg_long>Last_price_avg_short and \
+                    #     Last_price_avg_long>Last_price_avg_medium:
+                    #     UP_1=True
+                    # elif UP_1 and (last_price>Last_price_avg_long ):
+                    # #                >Last_price_avg_short>Last_price_avg_medium)\
+                    # #      and (2*(Last_price_avg_short-Last_price_avg_medium)< (Last_price_avg_long-Last_price_avg_short)):
+                    #     UP=True
+                    # else:
+                    #     UP_1=False
+                    #     UP=False
+
+                    UP=medium_PART2_avg>medium_PART1_avg
 
                     #----------#
                     #  BUYING  #
                     #----------#
-                    if (not buyed )and UP  :
+                    if (not buyed )and UP and (
+                         Last_price_avg_long>last_price>Last_price_avg_short>Last_price_avg_medium)\
+                         and Prediction_AVG>last_price :
                                 Action=1
                                 buyed_prics=last_price
                                 st="\n[----------------------------------------]"
@@ -132,10 +145,9 @@ def main():
                     #  SEELING  #
                     #-----------#
                     if buyed :profet=round(((last_price-buyed_prics) / buyed_prics) * 100,3) 
-                    if buyed and ( profet>0.1 and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
-                                or 
-                                (Last_price_avg_short<Last_price_avg_long 
-                                and Last_price_avg_medium<Last_price_avg_long)):
+                    if buyed and not UP and profet>0.1 and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
+                                or (
+                                Last_price_avg_short<Last_price_avg_long and Last_price_avg_medium<Last_price_avg_long):
                             
                             Action=2
                             st =f"=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
