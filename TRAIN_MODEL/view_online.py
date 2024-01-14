@@ -35,8 +35,6 @@ top_10_binance_symbols = [
 ]
 
 
-
-
 def check_contenuation(last_time,counter,buyed,symbol,times=20):
     date=time.strftime("%d.%m.%y_%H", time.localtime())
     timeing=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
@@ -71,8 +69,8 @@ def main():
     STATUS="---"
 
 
-    buyed,UP,DOWN=False,False,False
-    Action=0  #0 -> nothing 1-> buy  2-> sell
+    buyed,UP,UP_1=False,False,False
+    Action,buyed_prics,profet=0,1,0 #0 -> nothing 1-> buy  2-> sell
     date=time.strftime("%d.%m.%y_%H", time.localtime())
 
     
@@ -107,37 +105,42 @@ def main():
                     Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),3)
                     
 
-                    if last_price>Last_price_avg_long>Last_price_avg_short :
+                    if Last_price_avg_long>last_price and\
+                        Last_price_avg_long>Last_price_avg_short and \
+                        Last_price_avg_long>Last_price_avg_medium:
+                        UP_1=True
+                    elif UP_1 and (last_price>Last_price_avg_long ):
+                    #                >Last_price_avg_short>Last_price_avg_medium)\
+                    #      and (2*(Last_price_avg_short-Last_price_avg_medium)< (Last_price_avg_long-Last_price_avg_short)):
                         UP=True
-                        DOWN=False
-                    elif UP and not (Last_price_avg_short>=Last_price_avg_long) :
+                    else:
+                        UP_1=False
                         UP=False
-
-                    #if Last_price_avg_short>last_price>Last_price_avg_long :
-                      #  DOWN=True 
-                      #  UP=False
-                   # elif DOWN and not (last_price>=Last_price_avg_short) :
-                    #    DOWN=False
 
                     #----------#
                     #  BUYING  #
                     #----------#
-                    if not buyed and UP and last_price>Last_price_avg_short>Last_price_avg_medium>Last_price_avg_long :
+                    if (not buyed )and UP  :
                                 Action=1
                                 buyed_prics=last_price
-                                st= f"\n BUYING: {TIME} price:{last_price} \n"
+                                st="\n[----------------------------------------]"
+                                st+= f"\n\t BUYING: {TIME} price:{last_price} \n"
                                 with open(f"./{symbol} {date}.log", "+a") as logfile:
                                     logfile.write(st)
 
                     #-----------#
                     #  SEELING  #
                     #-----------#
-                    #if buyed and DOWN and last_price>=Last_price_avg_short:
-                    if buyed and (Last_price_avg_long<Last_price_avg_medium<Last_price_avg_short<last_price) : 
+                    if buyed :profet=round(((last_price-buyed_prics) / buyed_prics) * 100,3) 
+                    if buyed and ( profet>0.1 and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
+                                or 
+                                (Last_price_avg_short<Last_price_avg_long 
+                                and Last_price_avg_medium<Last_price_avg_long)):
+                            
                             Action=2
-                            profet=round(((buyed_prics-last_price) / buyed_prics) * 100,4)
-                            st =f"\n=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
-                            st+=f"\t#| PROF=>{last_price} - {buyed_prics}=> {profet}% |#\n"
+                            st =f"=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
+                            st+=f"\t#|buy:{buyed_prics}->sell:{last_price} => profet {profet}% |#"
+                            st="\n[----------------------------------------]\n"
                             with open(f"./{symbol} {date}.log", "+a") as logfile:
                                 logfile.write(st)
           
@@ -151,14 +154,13 @@ def main():
                             output+=f'{buyed_prics},{TIME}\n'
                         elif Action==2:
                             buyed=False
-                            f'{last_price},{TIME},{profet}%\n'
+                            output+=f'{last_price},{TIME},{profet}%\n'
                         Action=0
                     with open(f"./{symbol} {date}.cvs", "+a") as logfile:
                         logfile.write(output)
 
                 else:
                     print("collecting data.. :",((len(AVG_LIST_last_prices)+1)/long_len_range)*100,"%")
-                    
                     
                 
                 time.sleep(STEPS)

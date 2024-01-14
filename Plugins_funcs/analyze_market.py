@@ -22,12 +22,12 @@ def Analyze_market(book):
     sorted_bids = sorted(bids, key=lambda x: x['AMOUNT'], reverse=True)
     sorted_asks = sorted(asks, key=lambda x: x['AMOUNT'], reverse=True)
 
-    # Select top 5 bids and asks
+    # Select top 4 bids and asks
     top_bids = sorted_bids[:10]
     top_asks = sorted_asks[:10]
 
     # Calculate the moving average for the selected bids and asks
-    Prediction_price = Avg_ord_list(top_bids + top_asks)
+    Prediction_price = (Avg_ord_list(top_bids)+Avg_ord_list(top_asks))/2
 
     return {
         'Last_Price': Last_Price,
