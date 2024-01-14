@@ -127,6 +127,7 @@ def main():
                     #     UP=False
 
                     UP=medium_PART2_avg>medium_PART1_avg
+                    CRISIS=Last_price_avg_short<Last_price_avg_long and Last_price_avg_medium<Last_price_avg_long
 
                     #----------#
                     #  BUYING  #
@@ -146,8 +147,7 @@ def main():
                     #-----------#
                     if buyed :profet=round(((last_price-buyed_prics) / buyed_prics) * 100,3) 
                     if buyed and not UP and profet>0.1 and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
-                                or (
-                                Last_price_avg_short<Last_price_avg_long and Last_price_avg_medium<Last_price_avg_long):
+                       or CRISIS:
                             
                             Action=2
                             st =f"=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
