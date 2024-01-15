@@ -97,10 +97,10 @@ def main():
                 AVG_LIST_last_prices.append(last_price)
                 AVG_LIST_Prediction.append(Prediction_price)
 
-                if len(AVG_LIST_last_prices)>long_len_range:
-                    del AVG_LIST_last_prices[0]
                 if len(AVG_LIST_Prediction)>prediction_len_range:
                     del AVG_LIST_Prediction[0]
+                if len(AVG_LIST_last_prices)>long_len_range:
+                    del AVG_LIST_last_prices[0]
                 #-----------------------data collected -v--
                     short=AVG_LIST_last_prices[-short_len_range:]
                     medium=AVG_LIST_last_prices[-medium_len_range:]
@@ -147,7 +147,7 @@ def main():
                     #-----------#
                     if buyed :profet=round(((last_price-buyed_prics) / buyed_prics) * 100,3) 
                     if buyed and not UP and profet>0.1 and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
-                       or CRISIS:
+                       or (buyed and CRISIS):
                             
                             Action=2
                             st =f"=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
