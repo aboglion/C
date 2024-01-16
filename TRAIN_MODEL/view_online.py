@@ -12,7 +12,7 @@ from Plugins_funcs.BINANCE_book_data import Binance_book_data
 # url_symbols = "https://api.binance.com/api/v3/exchangeInfo"
 
 h=60*60
-LIFE_TIME = h*10
+LIFE_TIME = h*3
 JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
 long_len_range=800
