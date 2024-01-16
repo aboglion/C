@@ -16,9 +16,14 @@ LIFE_TIME = h*3
 JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
 long_len_range=800
-medium_len_range=401 #תמיד להגדיר אותו אי זוגי
+medium_len_range=400 
 short_len_range=100
 prediction_len_range=5 
+medium_LenPart=25 
+
+if medium_LenPart>=(medium_len_range//2):
+     print("exit 'medium_LenPart' must be less then",medium_len_range//2,"(medium_len_range//2)")
+     exit(1)
 
 top_10_binance_symbols = [
     "BTCUSDT",
@@ -110,9 +115,8 @@ def main():
                     Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),3)
                     Prediction_AVG=round((sum(AVG_LIST_Prediction)/prediction_len_range),3)
 
-                    medium_LenPart=medium_len_range//2
-                    medium_PART1_avg=round((sum(medium[:medium_LenPart+1])/medium_LenPart),3)
-                    medium_PART2_avg=round((sum(medium[medium_LenPart+1:])/medium_LenPart),3)
+                    medium_PART1_avg=round((sum(medium[-medium_LenPart:]) / medium_LenPart),3)
+                    medium_PART2_avg=round((sum(medium[(-medium_LenPart*2):-medium_LenPart]) / medium_LenPart),3)
 
                     # if Last_price_avg_long>last_price and\
                     #     Last_price_avg_long>Last_price_avg_short and \
@@ -127,7 +131,7 @@ def main():
                     #     UP=False
 
                     UP=medium_PART2_avg>medium_PART1_avg
-                    CRISIS=Last_price_avg_short<Last_price_avg_long and Last_price_avg_medium<Last_price_avg_long
+                    CRISIS=Last_price_avg_short<Last_price_avg_medium and Last_price_avg_medium<Last_price_avg_long
 
                     #----------#
                     #  BUYING  #
@@ -172,8 +176,9 @@ def main():
                         logfile.write(output)
 
                 else:
-                    print("collecting data.. :",((len(AVG_LIST_last_prices)+1)/long_len_range)*100,"%")
-                    
+                    Data_collection_progress=((len(AVG_LIST_last_prices)+1)/long_len_range)*100
+                    if Data_collection_progress<=100:print("collecting data.. :",((len(AVG_LIST_last_prices)+1)/long_len_range)*100,"%")
+                    else:print("DONE collection data. NOW IT'S START ..")
                 
                 time.sleep(STEPS)
                 life_time -= STEPS
