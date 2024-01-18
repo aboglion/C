@@ -19,7 +19,7 @@ long_len_range=800
 medium_len_range=400 
 short_len_range=100
 prediction_len_range=5 
-direction_LenPart=7
+direction_LenPart=12
 
 if long_len_range<24:
      print("exit long_len_range must be > 4 for UP len")
@@ -119,21 +119,21 @@ def main():
                 #-------  COLLECT UP DIRCTION data part2------
                     UP_medium_list.append(Last_price_avg_medium)
                     UP_short_list.append(Last_price_avg_short)
-                    if len(UP_medium_list)>50:
+                    if len(UP_medium_list)>(direction_LenPart*2):
                         UP_collected=True
                 #-----------==STARTED=----------------------------
                     if UP_collected:
                         # price -> 24 =>[12,12]
-                        price_PART1_avg=round((sum(AVG_LIST_last_prices[-24:-12]) / 12),3)
-                        price_PART2_avg=round((sum(AVG_LIST_last_prices[-12:]) / 12),3)
+                        price_PART1_avg=round((sum(AVG_LIST_last_prices[-(direction_LenPart*2):-direction_LenPart]) / direction_LenPart),3)
+                        price_PART2_avg=round((sum(AVG_LIST_last_prices[-direction_LenPart:]) / direction_LenPart),3)
                         #  short 24 =>[12,12]
-                        UP_short_list=UP_short_list[-24:]
-                        short_PART1_avg=round((sum(UP_short_list[:12]) / 12),3)
-                        short_PART2_avg=round((sum(UP_short_list[12:]) / 12),3)
-                        #medium->  50 =>[25,25]
-                        UP_medium_list=UP_medium_list[-50:]
-                        medium_PART1_avg=round((sum(UP_medium_list[:25]) / 25),3)
-                        medium_PART2_avg=round((sum(UP_medium_list[25:]) / 25),3)
+                        UP_short_list=UP_short_list[-(direction_LenPart*2):]
+                        short_PART1_avg=round((sum(UP_short_list[:direction_LenPart]) / direction_LenPart),3)
+                        short_PART2_avg=round((sum(UP_short_list[direction_LenPart:]) / direction_LenPart),3)
+                        #medium->  30 =>[15,15]
+                        UP_medium_list=UP_medium_list[-(direction_LenPart*2):]
+                        medium_PART1_avg=round((sum(UP_medium_list[:direction_LenPart]) / direction_LenPart),3)
+                        medium_PART2_avg=round((sum(UP_medium_list[direction_LenPart:]) / direction_LenPart),3)
 
                         UP_price=price_PART2_avg>price_PART1_avg
                         UP_short=short_PART2_avg>short_PART1_avg
@@ -190,7 +190,7 @@ def main():
 
                 #======DATA NOT COLLECTED YET ====xxx
                     else:
-                        print("collect data for UP dirctions",(len(UP_medium_list)/50)*100,"%")
+                        print("collect data for UP dirctions",(len(UP_medium_list)/(direction_LenPart*2))*100,"%")
                 else:
                     Data_collection_progress=((len(AVG_LIST_last_prices)+1)/long_len_range)*100
                     if Data_collection_progress<=100:print("collecting data.. :",((len(AVG_LIST_last_prices)+1)/long_len_range)*100,"%")
