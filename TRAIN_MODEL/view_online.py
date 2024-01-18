@@ -119,26 +119,28 @@ def main():
                 #-------  COLLECT UP DIRCTION data part2------
                     UP_medium_list.append(Last_price_avg_medium)
                     UP_short_list.append(Last_price_avg_short)
-                    if len(UP_short_list)>12:
+                    if len(UP_medium_list)>50:
                         UP_collected=True
                 #-----------==STARTED=----------------------------
                     if UP_collected:
                         # price -> 24 =>[12,12]
                         price_PART1_avg=round((sum(AVG_LIST_last_prices[-24:-12]) / 12),3)
                         price_PART2_avg=round((sum(AVG_LIST_last_prices[-12:]) / 12),3)
-                        # short -> 12 =>[6,6]
-                        UP_short_list=UP_short_list[-12:]
-                        short_PART1_avg=round((sum(UP_short_list[:6]) / 6),3)
-                        short_PART2_avg=round((sum(UP_short_list[6:]) / 6),3)
-                        #medium-> 6 =>[3,3]
-                        UP_medium_list=UP_medium_list[-6:]
-                        medium_PART1_avg=round((sum(UP_medium_list[:3]) / 3),3)
-                        medium_PART2_avg=round((sum(UP_medium_list[3:]) / 3),3)
+                        #  short 24 =>[12,12]
+                        UP_short_list=UP_short_list[-24:]
+                        short_PART1_avg=round((sum(UP_short_list[:12]) / 12),3)
+                        short_PART2_avg=round((sum(UP_short_list[12:]) / 12),3)
+                        #medium->  50 =>[25,25]
+                        UP_medium_list=UP_medium_list[-50:]
+                        medium_PART1_avg=round((sum(UP_medium_list[:25]) / 25),3)
+                        medium_PART2_avg=round((sum(UP_medium_list[25:]) / 25),3)
 
                         UP_price=price_PART2_avg>price_PART1_avg
                         UP_short=short_PART2_avg>short_PART1_avg
                         UP_medium=medium_PART2_avg>medium_PART1_avg
-                        CRISIS=Last_price_avg_short<Last_price_avg_medium and Last_price_avg_medium<Last_price_avg_long
+                        CRISIS=(Last_price_avg_short<Last_price_avg_medium 
+                                and Last_price_avg_medium<Last_price_avg_long
+                                and last_price<Last_price_avg_short)
 
                         #----------#
                         #  BUYING  #
@@ -160,7 +162,8 @@ def main():
                         #  SEELING  #
                         #-----------#
                         if buyed :profet=round(((last_price-buyed_prics) / buyed_prics) * 100,3) 
-                        if buyed and not UP_price and not UP_short and profet>0.1 and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
+                        if buyed and not UP_price and not UP_short and profet>0.1\
+                            and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
                         or (buyed and CRISIS):
                                 
                                 Action=2
@@ -187,7 +190,7 @@ def main():
 
                 #======DATA NOT COLLECTED YET ====xxx
                     else:
-                        print("collect data for UP dirctions",(len(UP_medium_list)/(direction_LenPart*2))*100,"%")
+                        print("collect data for UP dirctions",(len(UP_medium_list)/50)*100,"%")
                 else:
                     Data_collection_progress=((len(AVG_LIST_last_prices)+1)/long_len_range)*100
                     if Data_collection_progress<=100:print("collecting data.. :",((len(AVG_LIST_last_prices)+1)/long_len_range)*100,"%")
