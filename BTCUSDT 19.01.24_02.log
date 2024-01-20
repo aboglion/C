@@ -1,0 +1,22 @@
+
+[----------------------------------------]
+ price_PART2:41316.814 > price_PART1:41300.972=>True 
+ short_PART2:41293.596 > short_PART1:41292.123=>True 
+ medium_PART2:41299.642 > medium_PART1:41299.259=>True 
+	 BUYING: 02:00:05 price:41301.776 
+
+[----------------------------------------]
+
+[----------------------------------------]
+ price_PART2:41267.838 > price_PART1:41247.73=>True 
+ short_PART2:41240.298 > short_PART1:41240.177=>True 
+ medium_PART2:41284.498 > medium_PART1:41284.118=>True 
+	 BUYING: 02:19:37 price:41273.602 
+
+[----------------------------------------]
+
+[----------------------------------------]
+ price_PART2:41237.83 > price_PART1:41231.417=>True 
+ short_PART2:41168.165 > short_PART1:41153.559=>True 
+ medium_PART2:41184.941 > medium_PART1:41184.918=>True 
+	 BUYING: 02:35:05 price:41231.11 

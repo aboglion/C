@@ -19,11 +19,8 @@ long_len_range=800
 medium_len_range=400 
 short_len_range=100
 prediction_len_range=5 
-direction_LenPart=12
 
-if long_len_range<24:
-     print("exit long_len_range must be > 4 for UP len")
-     exit(1)
+
 
 top_10_binance_symbols = [
     "BTCUSDT",
@@ -119,78 +116,71 @@ def main():
                 #-------  COLLECT UP DIRCTION data part2------
                     UP_medium_list.append(Last_price_avg_medium)
                     UP_short_list.append(Last_price_avg_short)
-                    if len(UP_medium_list)>(direction_LenPart*2):
-                        UP_collected=True
-                #-----------==STARTED=----------------------------
-                    if UP_collected:
-                        # price -> 24 =>[12,12]
-                        price_PART1_avg=round((sum(AVG_LIST_last_prices[-(direction_LenPart*2):-direction_LenPart]) / direction_LenPart),3)
-                        price_PART2_avg=round((sum(AVG_LIST_last_prices[-direction_LenPart:]) / direction_LenPart),3)
-                        #  short 24 =>[12,12]
-                        UP_short_list=UP_short_list[-(direction_LenPart*2):]
-                        short_PART1_avg=round((sum(UP_short_list[:direction_LenPart]) / direction_LenPart),3)
-                        short_PART2_avg=round((sum(UP_short_list[direction_LenPart:]) / direction_LenPart),3)
-                        #medium->  30 =>[15,15]
-                        UP_medium_list=UP_medium_list[-(direction_LenPart*2):]
-                        medium_PART1_avg=round((sum(UP_medium_list[:direction_LenPart]) / direction_LenPart),3)
-                        medium_PART2_avg=round((sum(UP_medium_list[direction_LenPart:]) / direction_LenPart),3)
 
-                        UP_price=price_PART2_avg>price_PART1_avg
-                        UP_short=short_PART2_avg>short_PART1_avg
-                        UP_medium=medium_PART2_avg>medium_PART1_avg
-                        CRISIS=(Last_price_avg_short<Last_price_avg_medium 
-                                and Last_price_avg_medium<Last_price_avg_long
-                                and last_price<Last_price_avg_short)
+                    CRISIS=(Last_price_avg_short<Last_price_avg_medium 
+                            and Last_price_avg_medium<Last_price_avg_long
+                            and last_price<Last_price_avg_short)
 
-                        #----------#
-                        #  BUYING  #
-                        #----------#
-                        if (not buyed )and UP_price and UP_short and UP_medium and (
-                            last_price>Last_price_avg_short
-                            and last_price<Last_price_avg_long ):
-                                    Action=1
-                                    buyed_prics=last_price
-                                    st="\n[----------------------------------------]"
-                                    st+=f"\n price_PART2:{price_PART2_avg} > price_PART1:{price_PART1_avg}=>{UP_price} "
-                                    st+=f"\n short_PART2:{short_PART2_avg} > short_PART1:{short_PART1_avg}=>{UP_short} "
-                                    st+=f"\n medium_PART2:{medium_PART2_avg} > medium_PART1:{medium_PART1_avg}=>{UP_medium} "
-                                    st+= f"\n\t BUYING: {TIME} price:{last_price} \n"
-                                    with open(f"./{symbol} {date}.log", "+a") as logfile:
-                                        logfile.write(st)
-
-                        #-----------#
-                        #  SEELING  #
-                        #-----------#
-                        if buyed :profet=round(((last_price-buyed_prics) / buyed_prics) * 100,3) 
-                        if buyed and not UP_price and not UP_short and profet>0.1\
-                            and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
-                        or (buyed and CRISIS):
-                                
-                                Action=2
-                                st =f"=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
-                                st+=f"\t{'CRISIS' if CRISIS else'#'}|buy:{buyed_prics}->sell:{last_price} => profet {profet}% |#"
-                                st="\n[----------------------------------------]\n"
+                    #----------#
+                    #  BUYING  #
+                    #----------#
+                    # if (not buyed )and UP_short and (Last_price_avg_long>Last_price_avg_medium and
+                    #     int(Last_price_avg_long-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_short)
+                    #     and last_price<Last_price_avg_short<Last_price_avg_long ):
+                    if (not buyed )and (
+                            last_price<
+                            Last_price_avg_short
+                            <Last_price_avg_medium
+                            <Last_price_avg_long
+                            )and(
+                            int(Last_price_avg_long-((Last_price_avg_medium+Last_price_avg_short)/2))
+                            ==int(((Last_price_avg_medium+Last_price_avg_short)/2)-last_price))  :
+                                Action=1
+                                buyed_prics=last_price
+                                st="\n[----------------------------------------]"
+                                st+=f"\n price_PART2:{price_PART2_avg} > price_PART1:{price_PART1_avg}=>{UP_price} "
+                                st+=f"\n short_PART2:{short_PART2_avg} > short_PART1:{short_PART1_avg}=>{UP_short} "
+                                st+=f"\n medium_PART2:{medium_PART2_avg} > medium_PART1:{medium_PART1_avg}=>{UP_medium} "
+                                st+= f"\n\t BUYING: {TIME} price:{last_price} \n"
                                 with open(f"./{symbol} {date}.log", "+a") as logfile:
                                     logfile.write(st)
-            
 
-                    #==== LOG IT ======#
-                
-                        output=f'{round(last_price,3)},{Prediction_price},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{TIME}\n'
-                        if Action:
-                            if Action==1:
-                                buyed=True
-                                output+=f'{buyed_prics},{TIME}\n'
-                            elif Action==2:
-                                buyed=False
-                                output+=f'{last_price},{TIME},{profet}%\n'
-                            Action=0
-                        with open(f"./{symbol} {date}.cvs", "+a") as logfile:
-                            logfile.write(output)
+                    #-----------#
+                    #  SEELING  #
+                    #-----------#                            round(((last_price-buyed_prics) / buyed_prics) * 100,3)<0.01  and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
+
+                    if buyed :profet=round(((last_price-buyed_prics) / buyed_prics) * 100,3) 
+                    if buyed and  profet>0.1\
+                        and (last_price
+                                > Last_price_avg_short
+                                >Last_price_avg_medium
+                                )and(
+                                    int(last_price-Last_price_avg_short)
+                                    ==int(Last_price_avg_short-Last_price_avg_medium))\
+                                or (buyed and CRISIS):
+                            Action=2
+                            st =f"=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
+                            st+=f"\t{'CRISIS' if CRISIS else'#'}|buy:{buyed_prics}->sell:{last_price} => profet {profet}% |#"
+                            st+="\n[----------------------------------------]\n"
+                            with open(f"./{symbol} {date}.log", "+a") as logfile:
+                                logfile.write(st)
+        
+
+                #==== LOG IT ======#
+            
+                    output=f'{round(last_price,3)},{Prediction_price},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{TIME}\n'
+                    if Action:
+                        if Action==1:
+                            buyed=True
+                            output+=f'{buyed_prics},{TIME}\n'
+                        elif Action==2:
+                            buyed=False
+                            output+=f'{last_price},{TIME},{profet}%\n'
+                        Action=0
+                    with open(f"./{symbol} {date}.cvs", "+a") as logfile:
+                        logfile.write(output)
 
                 #======DATA NOT COLLECTED YET ====xxx
-                    else:
-                        print("collect data for UP dirctions",(len(UP_medium_list)/(direction_LenPart*2))*100,"%")
                 else:
                     Data_collection_progress=((len(AVG_LIST_last_prices)+1)/long_len_range)*100
                     if Data_collection_progress<=100:print("collecting data.. :",((len(AVG_LIST_last_prices)+1)/long_len_range)*100,"%")
