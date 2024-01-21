@@ -18,7 +18,7 @@ STEPS = 2
 long_len_range=800
 medium_len_range=400 
 short_len_range=100
-prediction_len_range=10
+prediction_len_range=7
 
 
 
@@ -99,7 +99,7 @@ def main():
               
                 #----- collect data  part1---------------- 
                 AVG_LIST_last_prices.append(last_price)
-                AVG_LIST_Prediction.append(Prediction_up)
+                if not(Prediction_up==0):AVG_LIST_Prediction.append(Prediction_up)
 
                 if len(AVG_LIST_Prediction)>prediction_len_range:
                      del AVG_LIST_Prediction[0]
