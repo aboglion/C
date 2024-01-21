@@ -15,7 +15,7 @@ def cvsChart(csv_file):
     # יצירת רשימות עבור הנתונים
     TIME = []
     Last_price = []
-    Prediction_avg = []
+    AVG_MaxMin = []
     price_avg_short = []
     price_avg_medium=[]
     price_avg_long = []
@@ -29,7 +29,7 @@ def cvsChart(csv_file):
         data = line.strip().split(',')
         if len(data) == 6:
             Last_price.append(float(data[0]))
-            Prediction_avg.append(float(data[1]))
+            AVG_MaxMin.append(float(data[1]))
             price_avg_short.append(float(data[2]))
             price_avg_medium.append(float(data[3]))
             price_avg_long.append(float(data[4]))
@@ -44,7 +44,7 @@ def cvsChart(csv_file):
                 
     # יצירת סדרות נתונים לגרף בעזרת plotly
     Price = go.Scatter(x=TIME, y=Last_price, mode='lines', name='Price')
-    Prediction = go.Scatter(x=TIME, y=Prediction_avg, mode='lines', name='Prediction')
+    Prediction = go.Scatter(x=TIME, y=AVG_MaxMin, mode='lines', name='AVG_MaxMin')
     AVG_SHORT = go.Scatter(x=TIME, y=price_avg_short, mode='lines', name='AVG_SHORT')
     AVG_medium = go.Scatter(x=TIME, y=price_avg_medium, mode='lines', name='AVG_medium')
     AVG_LONG = go.Scatter(x=TIME, y=price_avg_long, mode='lines', name='AVG_LONG')

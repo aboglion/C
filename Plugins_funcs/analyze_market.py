@@ -26,19 +26,15 @@ def Analyze_market(book):
 
 
     
-    if total_amount_asks-total_amount_bids*2>0 :
-        Prediction_price =Last_Price*1.01
-    elif total_amount_bids-total_amount_asks*2>0 :
-        Prediction_price =Last_Price*0.09
-    elif total_amount_asks-total_amount_bids>0:
-        Prediction_price =Last_Price*1.003
-    elif total_amount_bids-total_amount_asks>0 :
-        Prediction_price =Last_Price*0.007
-    else : Prediction_price=Last_Price
+    if total_amount_asks-total_amount_bids>0 :
+        Prediction_up =-1
+    elif total_amount_bids-total_amount_asks>0:
+        Prediction_up =1
+    else : Prediction_up=0
 
    
     return {
         'Last_Price': Last_Price,
-        'Prediction_price':Prediction_price,
+        'Prediction_up':Prediction_up,
     }
 
