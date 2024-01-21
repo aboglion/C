@@ -18,17 +18,25 @@ def Analyze_market(book):
     Last_Price=Avg_ord_list([bids[0],asks[0]])
     
     
-    # Sort bids and asks based on AMOUNT in descending order
-    sorted_bids = sorted(bids, key=lambda x: x['AMOUNT'], reverse=True)
-    sorted_asks = sorted(asks, key=lambda x: x['AMOUNT'], reverse=True)
+    # Calculate the total AMOUNT for top bids
+    total_amount_bids = sum(b['AMOUNT'] for b in bids)
 
-    # Select top 4 bids and asks
-    top_bids = sorted_bids[:10]
-    top_asks = sorted_asks[:10]
+    # Calculate the total AMOUNT for top asks
+    total_amount_asks = sum(a['AMOUNT'] for a in asks)
 
-    # Calculate the moving average for the selected bids and asks
-    Prediction_price = (Avg_ord_list(top_bids)+Avg_ord_list(top_asks))/2
 
+    
+    if total_amount_asks-total_amount_bids*2>0 :
+        Prediction_price =Last_Price*1.01
+    elif total_amount_bids-total_amount_asks*2>0 :
+        Prediction_price =Last_Price*0.09
+    elif total_amount_asks-total_amount_bids>0:
+        Prediction_price =Last_Price*1.003
+    elif total_amount_bids-total_amount_asks>0 :
+        Prediction_price =Last_Price*0.007
+    else : Prediction_price=Last_Price
+
+   
     return {
         'Last_Price': Last_Price,
         'Prediction_price':Prediction_price,

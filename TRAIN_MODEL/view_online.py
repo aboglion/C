@@ -18,7 +18,7 @@ STEPS = 2
 long_len_range=800
 medium_len_range=400 
 short_len_range=100
-prediction_len_range=5 
+prediction_len_range=7
 
 
 
@@ -65,9 +65,8 @@ def main():
 
     AVG_LIST_Prediction=[]
     AVG_LIST_last_prices=[]
-    UP_medium_list=[]
-    UP_short_list=[]
-    UP_collected=False
+    UP=False
+    min_point=False
 
     life_time = LIFE_TIME
     symbol=top_10_binance_symbols[0]
@@ -75,7 +74,7 @@ def main():
 
 
     buyed,UP,UP_1=False,False,False
-    Action,buyed_prics,profet=0,1,0 #0 -> nothing 1-> buy  2-> sell
+    Action,buyed_prics,profet=0,0,0 #0 -> nothing 1-> buy  2-> sell
     date=time.strftime("%d.%m.%y_%H", time.localtime())
 
     
@@ -112,36 +111,43 @@ def main():
                     Last_price_avg_short=round((sum(short)/short_len_range),3)
                     Last_price_avg_medium=round((sum(medium)/medium_len_range),3)
                     Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),3)
-                    # Prediction_AVG=round((sum(AVG_LIST_Prediction)/prediction_len_range),3)
+                    Prediction_AVG=round((sum(AVG_LIST_Prediction)/prediction_len_range),3)
                 #-------  COLLECT UP DIRCTION data part2------
-                    UP_medium_list.append(Last_price_avg_medium)
-                    UP_short_list.append(Last_price_avg_short)
 
-                    CRISIS=(Last_price_avg_short<Last_price_avg_medium 
-                            and Last_price_avg_medium<Last_price_avg_long
-                            and last_price<Last_price_avg_short)
+                    UP=AVG_LIST_last_prices[-1]>AVG_LIST_last_prices[-2]>AVG_LIST_last_prices[-3]
+
+                    CRISIS=(Last_price_avg_long<=buyed_prics 
+                            >Last_price_avg_medium>Last_price_avg_short
+                            and UP)
+              
+
+
 
                     #----------#
                     #  BUYING  #
                     #----------#
-                    # if (not buyed )and UP_short and (Last_price_avg_long>Last_price_avg_medium and
-                    #     int(Last_price_avg_long-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_short)
-                    #     and last_price<Last_price_avg_short<Last_price_avg_long ):
-                    if (not buyed )and (
-                            last_price<
-                            Last_price_avg_short
-                            <Last_price_avg_medium
-                            <Last_price_avg_long
+                    if ((not buyed )and (not UP)and last_price <
+                        Last_price_avg_short
+                        <Last_price_avg_medium
+                        <Last_price_avg_long
                             )and(
-                            int(Last_price_avg_long-((Last_price_avg_medium+Last_price_avg_short)/2))
-                            ==int(((Last_price_avg_medium+Last_price_avg_short)/2)-last_price))  :
+                        int(Last_price_avg_long-((Last_price_avg_medium+Last_price_avg_short)/2))
+                        ==int(((Last_price_avg_medium+Last_price_avg_short)/2)-last_price)
+                                ) :min_point=True
+                    elif (
+                           Last_price_avg_short>Last_price_avg_medium
+                            or
+                            Last_price_avg_medium>Last_price_avg_long
+                        ):min_point=False
+
+
+                    if (not buyed )and min_point and (
+                            last_price>Last_price_avg_short):
                                 Action=1
                                 buyed_prics=last_price
                                 st="\n[----------------------------------------]"
-                                st+=f"\n price_PART2:{price_PART2_avg} > price_PART1:{price_PART1_avg}=>{UP_price} "
-                                st+=f"\n short_PART2:{short_PART2_avg} > short_PART1:{short_PART1_avg}=>{UP_short} "
-                                st+=f"\n medium_PART2:{medium_PART2_avg} > medium_PART1:{medium_PART1_avg}=>{UP_medium} "
                                 st+= f"\n\t BUYING: {TIME} price:{last_price} \n"
+                                print(st)
                                 with open(f"./{symbol} {date}.log", "+a") as logfile:
                                     logfile.write(st)
 
@@ -149,8 +155,8 @@ def main():
                     #  SEELING  #
                     #-----------#                            round(((last_price-buyed_prics) / buyed_prics) * 100,3)<0.01  and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
 
-                    if buyed :profet=round(((last_price-buyed_prics) / buyed_prics) * 100,3) 
-                    if buyed and  profet>0.1\
+                    if buyed :profet=round(((last_price-buyed_prics) / buyed_prics if buyed_prics>0 else 1) * 100,3) 
+                    if buyed and profet>0.11\
                         and (last_price
                                 > Last_price_avg_short
                                 >Last_price_avg_medium
@@ -162,13 +168,14 @@ def main():
                             st =f"=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
                             st+=f"\t{'CRISIS' if CRISIS else'#'}|buy:{buyed_prics}->sell:{last_price} => profet {profet}% |#"
                             st+="\n[----------------------------------------]\n"
+                            print(st)
                             with open(f"./{symbol} {date}.log", "+a") as logfile:
                                 logfile.write(st)
         
 
                 #==== LOG IT ======#
             
-                    output=f'{round(last_price,3)},{Prediction_price},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{TIME}\n'
+                    output=f'{round(last_price,3)},{Prediction_AVG},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{TIME}\n'
                     if Action:
                         if Action==1:
                             buyed=True
