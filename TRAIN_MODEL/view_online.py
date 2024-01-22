@@ -119,9 +119,9 @@ def main():
                     CRISIS=(Last_price_avg_long<=buyed_prics 
                             >Last_price_avg_medium>Last_price_avg_short
                             and UP)
-                    if last_price < Last_price_avg_long:
+                    if Last_price_avg_medium < Last_price_avg_long:
                         max_price = Last_price_avg_long
-                    if last_price > Last_price_avg_long:
+                    if Last_price_avg_medium > Last_price_avg_long:
                         min_price = Last_price_avg_long
 
                     if AVG_LIST_last_prices[-4] > max_price and AVG_LIST_last_prices[-4] > Last_price_avg_long and \
