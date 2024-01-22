@@ -66,7 +66,7 @@ def main():
     AVG_LIST_Prediction=[]
     AVG_LIST_last_prices=[]
 
-
+    TOTAL_PROFET=0
     life_time = LIFE_TIME
     symbol=top_10_binance_symbols[0]
     STATUS="---"
@@ -172,6 +172,8 @@ def main():
                             st+=f"\t{'CRISIS' if CRISIS  else'#'}Prediction_dir: {Prediction_dir}|buy:{buyed_prics}->sell:{last_price} => profet {profet}% |#"
                             st+="\n[----------------------------------------]\n"
                             print(st)
+                            TOTAL_PROFET += TOTAL_PROFET+profet
+                            print("\tTOTAL_PROFET: ",TOTAL_PROFET,"=-=-=-=-=-=-=-=-=-=-=-\n")
                             with open(f"./{symbol} {date}.log", "+a") as logfile:
                                 logfile.write(st)
         
