@@ -17,7 +17,7 @@ JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.
 STEPS = 2
 long_len_range=800
 medium_len_range=400 
-short_len_range=100
+short_len_range=120
 prediction_len_range=7
 
 
@@ -65,15 +65,14 @@ def main():
 
     AVG_LIST_Prediction=[]
     AVG_LIST_last_prices=[]
-    UP=False
-    min_point=False
+
 
     life_time = LIFE_TIME
     symbol=top_10_binance_symbols[0]
     STATUS="---"
 
 
-    buyed,UP,UP_1=False,False,False
+    buyed,UP,UNDER_MaxMin=False,False,False
     Action,buyed_prics,profet=0,0,0 #0 -> nothing 1-> buy  2-> sell
     date=time.strftime("%d.%m.%y_%H", time.localtime())
 
@@ -116,9 +115,12 @@ def main():
 
                     UP=AVG_LIST_last_prices[-1]>AVG_LIST_last_prices[-2]>AVG_LIST_last_prices[-3]
                     
-                    CRISIS=(Last_price_avg_long<=buyed_prics 
-                            >Last_price_avg_medium>Last_price_avg_short
-                            and UP)
+                    CRISIS=(Last_price_avg_long> 
+                            Last_price_avg_medium>
+                            avg_MaxMin>
+                            Last_price_avg_short>
+                            last_price)
+                    
                     if Last_price_avg_medium < Last_price_avg_long:
                         max_price = Last_price_avg_long
                     if Last_price_avg_medium > Last_price_avg_long:
@@ -139,31 +141,19 @@ def main():
                     #----------#
                     #  BUYING  #
                     #----------#
-                    if ((not buyed )and (not UP)and last_price <
-                        Last_price_avg_short
-                        <Last_price_avg_medium
-                        <Last_price_avg_long
-                            )and(
-                        int(Last_price_avg_long-((Last_price_avg_medium+Last_price_avg_short)/2))
-                        ==int(((Last_price_avg_medium+Last_price_avg_short)/2)-last_price)
-                                ) :min_point=True
-                    elif (
-                           Last_price_avg_short>Last_price_avg_medium
-                            or
-                            Last_price_avg_medium>Last_price_avg_long
-                        ):min_point=False
-
-
-                    if (not buyed )and min_point and (
-                            last_price>Last_price_avg_short):
-                                Action=1
-                                buyed_prics=last_price
-                                st="\n[----------------------------------------]"
-                                st+= f"\n\t BUYING: {TIME} price:{last_price} \n"
-                                print(st)
-                                with open(f"./{symbol} {date}.log", "+a") as logfile:
-                                    logfile.write(st)
-
+                    if (not buyed )and UNDER_MaxMin and (
+                            Last_price_avg_long>last_price>=avg_MaxMin>Last_price_avg_short) \
+                        and Last_price_avg_medium < Last_price_avg_long \
+                        and Last_price_avg_medium < avg_MaxMin :       
+                            Action=1
+                            buyed_prics=last_price
+                            st="\n[----------------------------------------]"
+                            st+= f"\n\t BUYING: {TIME} price:{last_price} \n"
+                            print(st)
+                            with open(f"./{symbol} {date}.log", "+a") as logfile:
+                                logfile.write(st)
+                    
+                    UNDER_MaxMin=last_price<avg_MaxMin #its shuld be true before main cinditions checks
                     #-----------#
                     #  SEELING  #
                     #-----------#                            round(((last_price-buyed_prics) / buyed_prics) * 100,3)<0.01  and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
