@@ -121,7 +121,7 @@ def main():
                             Last_price_avg_short>
                             last_price)
                     
-                    if Last_price_avg_medium < Last_price_avg_long:
+                    if (Last_price_avg_medium+Last_price_avg_long)/1.618 < Last_price_avg_long:
                         max_price = Last_price_avg_long
                     if Last_price_avg_medium > Last_price_avg_long:
                         min_price = Last_price_avg_long
@@ -136,7 +136,7 @@ def main():
                         min_price = AVG_LIST_last_prices[-4]          
                         avg_MaxMin=round((max_price+min_price)/2,3)
 
-                    print(Prediction_dir,[AVG_LIST_last_prices[-5:]])
+                    # print(Prediction_dir,[AVG_LIST_last_prices[-5:]])
 
                     #----------#
                     #  BUYING  #
