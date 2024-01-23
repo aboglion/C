@@ -69,6 +69,8 @@ def main():
     life_time = LIFE_TIME
     symbol=top_10_binance_symbols[0]
     STATUS="---"
+    fee_buy=1.001
+    fee_sell=-1.001
 
 
     buyed,UP,UNDER_MaxMin,medium_underLong=False,False,False,False
@@ -148,7 +150,7 @@ def main():
                         # and Last_price_avg_medium < avg_MaxMin:
 
                             Action=1
-                            buyed_prics=last_price
+                            buyed_prics=last_price*fee_buy
                             st="\n[----------------------------------------]"
                             st+= f"\n\t BUYING: {TIME} price:{last_price} Prediction_dir: {Prediction_dir}\n"
                             print(st)
@@ -159,8 +161,8 @@ def main():
                     #-----------#
                     #  SEELING  #
                     #-----------
-                    if buyed :profet=round(((last_price-buyed_prics) / buyed_prics if buyed_prics>0 else 1) * 100,3) 
-                    if buyed and profet>0.11\
+                    if buyed :profet=round((((last_price*fee_sell)-buyed_prics) / buyed_prics if buyed_prics>0 else 1) * 100,3) 
+                    if buyed and profet>0.1\
                         and (last_price
                                 > Last_price_avg_short
                                 >Last_price_avg_medium
@@ -174,7 +176,7 @@ def main():
                             st+=f"\t{'CRISIS ! ' if CRISIS  else'# selling'}Prediction_dir: {Prediction_dir}\n|buy:{buyed_prics}->sell:{last_price} => profet {profet}% |#"
                             st+="\n[----------------------------------------]\n"
                             print(st)
-                            TOTAL_PROFET += TOTAL_PROFET+profet
+                            TOTAL_PROFET += TOTAL_PROFET+profet-0.1
                             print("\tTOTAL_PROFET: ",TOTAL_PROFET,"\n=-=-=-=-=-=-=-=-=-=-=-\n")
                             with open(f"./{symbol} {date}.log", "+a") as logfile:
                                 logfile.write(st)
