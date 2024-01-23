@@ -13,12 +13,11 @@ from Plugins_funcs.BINANCE_book_data import Binance_book_data
 
 h=60*60
 LIFE_TIME = h*8
-JSON_FILE = os.path.join(ROOT_DIR, 'collected_data',f'{os.getlogin()}_data_json.json')
 STEPS = 2
 long_len_range=800
 medium_len_range=400 
 short_len_range=120
-prediction_len_range=7
+prediction_len_range=20
 
 
 
@@ -111,7 +110,7 @@ def main():
                     Last_price_avg_medium=round((sum(medium)/medium_len_range),3)
                     Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),3)
                     Prediction_dir=True if round((sum(AVG_LIST_Prediction)/prediction_len_range),3)>0 else False
-                #-------  COLLECT UP DIRCTION data part2------
+                #-------  
 
                     UP=AVG_LIST_last_prices[-1]>AVG_LIST_last_prices[-2]>AVG_LIST_last_prices[-3]
                     
@@ -122,12 +121,11 @@ def main():
                             last_price)
                 #------
                     #RESET MAX MIN
-                    extra_to_slow_down=(abs(avg_MaxMin-Last_price_avg_long)/2.3)
                     if (not medium_underLong) and Last_price_avg_medium  < Last_price_avg_long:
-                        max_price = Last_price_avg_long
+                        max_price ,avg_MaxMin,min_price= Last_price_avg_long,Last_price_avg_long,Last_price_avg_long
                         medium_underLong=True
                     if medium_underLong and Last_price_avg_medium > Last_price_avg_long:
-                        min_price = Last_price_avg_long
+                        min_price ,avg_MaxMin,max_price= Last_price_avg_long,Last_price_avg_long,Last_price_avg_long
                         medium_underLong=False
                     #MAX_MIN
                     if AVG_LIST_last_prices[-4] > max_price and\
@@ -146,8 +144,8 @@ def main():
                     #----------#
                     if (not buyed )and UNDER_MaxMin and (
                             Last_price_avg_long>last_price>=avg_MaxMin>Last_price_avg_short) \
-                        and Last_price_avg_medium < Last_price_avg_long \
-                        and Last_price_avg_medium < avg_MaxMin:
+                        and Last_price_avg_medium < Last_price_avg_long :
+                        # and Last_price_avg_medium < avg_MaxMin:
 
                             Action=1
                             buyed_prics=last_price
@@ -160,10 +158,7 @@ def main():
                     UNDER_MaxMin=last_price<avg_MaxMin #its shuld be true before main cinditions checks
                     #-----------#
                     #  SEELING  #
-                    #-----------#round(((last_price-buyed_prics) / buyed_prics) * 100,3)<0.01  and int(Last_price_avg_short-Last_price_avg_medium)==int(Last_price_avg_medium-Last_price_avg_long) \
-(
-                                    # int(last_price-Last_price_avg_short)
-                                    # ==int(Last_price_avg_short-Last_price_avg_medium))
+                    #-----------
                     if buyed :profet=round(((last_price-buyed_prics) / buyed_prics if buyed_prics>0 else 1) * 100,3) 
                     if buyed and profet>0.11\
                         and (last_price
