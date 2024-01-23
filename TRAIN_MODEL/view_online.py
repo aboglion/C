@@ -73,7 +73,7 @@ def main():
     fee_sell=-1.001
 
 
-    buyed,UP,UNDER_MaxMin,medium_underLong=False,False,False,False
+    buyed,UP,UNDER_MaxMin,medium_underLong,short_UNDER_med=False,False,False,False,False
     Action,buyed_prics,profet=0,0,0 #0 -> nothing 1-> buy  2-> sell
     date=time.strftime("%d.%m.%y_%H", time.localtime())
 
@@ -144,11 +144,13 @@ def main():
                     #----------#
                     #  BUYING  #
                     #----------#
-                    if (not buyed )and UNDER_MaxMin and (
-                            Last_price_avg_long>last_price>=avg_MaxMin>Last_price_avg_short) \
-                        and Last_price_avg_medium < Last_price_avg_long :
+                    # if (not buyed )and UNDER_MaxMin and (
+                    #         Last_price_avg_long>last_price>=avg_MaxMin>Last_price_avg_short) \
+                    #     and Last_price_avg_medium < Last_price_avg_long :
                         # and Last_price_avg_medium < avg_MaxMin:
-
+                    if (not buyed )and short_UNDER_med and (
+                        avg_MaxMin>Last_price_avg_long>last_price) and(
+                        Last_price_avg_long>Last_price_avg_medium):
                             Action=1
                             buyed_prics=last_price*fee_buy
                             st="\n[----------------------------------------]"
@@ -156,7 +158,7 @@ def main():
                             print(st)
                             with open(f"./{symbol} {date}.log", "+a") as logfile:
                                 logfile.write(st)
-                    
+                    short_UNDER_med=Last_price_avg_medium>Last_price_avg_short
                     UNDER_MaxMin=last_price<avg_MaxMin #its shuld be true before main cinditions checks
                     #-----------#
                     #  SEELING  #
