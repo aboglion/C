@@ -66,5 +66,25 @@ def cvsChart(csv_file):
 
     # יצירת קובץ HTML והצגת הגרף בו
     plot(fig, filename=name_+'.html', auto_open=True)
+    return name_
 
+
+import glob
+import shutil
+
+def clean_files():
+    history_dir = 'history'
+    
+    # יצירת התיקייה אם היא לא קיימת
+    if not os.path.exists(history_dir):
+        os.makedirs(history_dir)
+
+    # רשימת סיומות הקבצים לחיפוש
+    file_extensions = ['*.html', '*.log', '*.cvs']
+
+    for extension in file_extensions:
+        # מציאת כל הקבצים עם הסיומת הנוכחית
+        for file in glob.glob(extension):
+            # העברת הקובץ לתיקייה 'history'
+            shutil.move(file, history_dir)
 

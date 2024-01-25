@@ -3,16 +3,19 @@ import time
 import os,sys
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(ROOT_DIR, '..'))
-
+from Plugins_funcs.telgram_ import *
 from Plugins_funcs.analyze_market import Analyze_market
-from Plugins_funcs.cvsChart import cvsChart
+from Plugins_funcs.cvsChart import cvsChart,clean_files
 from Plugins_funcs.BINANCE_book_data import Binance_book_data
+from Plugins_funcs import one_pass
+env=one_pass.env()
 
 # SYMBOL = "tSOLUSD" #"tBTCUSD"  # all=>https://api-pub.bitfinex.com/v2/tickers?symbols=ALL
 # url_symbols = "https://api.binance.com/api/v3/exchangeInfo"
 
+
 h=60*60
-LIFE_TIME = h*8
+LIFE_TIME = h*75
 STEPS = 2
 long_len_range=800
 medium_len_range=400 
@@ -80,7 +83,10 @@ def main():
     
     while life_time > 0:
         if not date==time.strftime("%d.%m.%y_%H", time.localtime()) :
-            if os.path.exists(f"./{symbol} {date}.cvs"):cvsChart(f"./{symbol} {date}.cvs")
+            if os.path.exists(f"./{symbol} {date}.cvs"):
+                    Name_chart=cvsChart(f"./{symbol} {date}.cvs")
+                    send_via_telegram(env["tel_CHAT_ID"] ,env["NEW H"],"LIFE ENDS",Name_chart)
+
             date=time.strftime("%d.%m.%y_%H", time.localtime())
 
         TIME=time.strftime("%H:%M:%S", time.localtime())
@@ -148,9 +154,8 @@ def main():
                     #         Last_price_avg_long>last_price>=avg_MaxMin>Last_price_avg_short) \
                     #     and Last_price_avg_medium < Last_price_avg_long :
                         # and Last_price_avg_medium < avg_MaxMin:
-                    if (not buyed )and short_UNDER_med and (
-                        avg_MaxMin>Last_price_avg_long>last_price) and(
-                        Last_price_avg_long>Last_price_avg_medium):
+                    if (not buyed )and price_UNDER_short and (
+                        last_price>Last_price_avg_short>Last_price_avg_medium>avg_MaxMin>Last_price_avg_long):
                             Action=1
                             buyed_prics=last_price*fee_buy
                             st="\n[----------------------------------------]"
@@ -159,6 +164,7 @@ def main():
                             with open(f"./{symbol} {date}.log", "+a") as logfile:
                                 logfile.write(st)
                     short_UNDER_med=Last_price_avg_medium>Last_price_avg_short
+                    price_UNDER_short=last_price<Last_price_avg_short
                     UNDER_MaxMin=last_price<avg_MaxMin #its shuld be true before main cinditions checks
                     #-----------#
                     #  SEELING  #
@@ -191,9 +197,13 @@ def main():
                         if Action==1:
                             buyed=True
                             output+=f'{buyed_prics},{TIME}\n'
+                            send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],output)
+
                         elif Action==2:
                             buyed=False
                             output+=f'{last_price},{TIME},{profet}%\n'
+                            send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],output,cvsChart(f"./{symbol} {date}.cvs"))
+                       
                         Action=0
                     with open(f"./{symbol} {date}.cvs", "+a") as logfile:
                         logfile.write(output)
@@ -209,13 +219,16 @@ def main():
                 life_time -= STEPS
         except KeyboardInterrupt:
             life_time = 0
-    cvsChart(f"./{symbol} {date}.cvs")
-        
+    Name_chart=cvsChart(f"./{symbol} {date}.cvs")
+    send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS",Name_chart)
+
+
     # with open("./logfile.log", "+a") as logfile:
     #     logfile.write(output)
 
 
 if __name__ == "__main__":
+    clean_files()
     main()
     
 
