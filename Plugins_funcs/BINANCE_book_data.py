@@ -41,7 +41,7 @@ def Binance_book_data(symbol):
         return [bids_book, asks_book]
     except requests.exceptions.RequestException as e:
         print("Failed in Binance_book_data:", e)
-        time.sleep(5)
+        time.sleep(10)
         return None
 
 

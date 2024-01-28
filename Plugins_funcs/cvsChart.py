@@ -1,13 +1,15 @@
 import plotly.graph_objs as go
 from plotly.offline import plot
 import os,time
+import glob
+import shutil
 
 
 
-
-def cvsChart(csv_file):
-    name_=os.path.basename(csv_file)[:-4]+time.strftime(" TO %H.%M", time.localtime())
-
+def cvsChart(csv_file,part_of_day=True):
+    name_=os.path.basename(csv_file)[:-4]
+    if part_of_day:name_+=time.strftime(" TO %H.%M", time.localtime())
+    
     # פתח את הקובץ CSV וקרא את הנתונים ישירות
     with open(csv_file, 'r') as file:
         lines = file.readlines()
@@ -66,11 +68,38 @@ def cvsChart(csv_file):
 
     # יצירת קובץ HTML והצגת הגרף בו
     plot(fig, filename=name_+'.html', auto_open=True)
-    return name_
+    return name_+'.html'
 
 
-import glob
-import shutil
+
+def Day_chart():
+    files=sorted(glob.glob("./*.cvs"))
+    print(files)
+    # last_price,Last_price_avg_short,Last_price_avg_medium,Last_price_avg_long,TIME
+    history_dir = 'history'
+
+    # יצירת התיקייה אם היא לא קיימת
+    if not os.path.exists(history_dir):
+        os.makedirs(history_dir)
+            # מעבר על כל הקבצים בתיקייה
+    for file in files:
+            if 'DAY' not in file:
+                print(file)
+                output_filename =os.path.basename(file)[:-7]+"_DAY.cvs"
+                with open(file, 'r') as csv_file:
+                    rows =csv_file.readlines()
+                    for row in rows:
+                        row=row.split(",")
+                        row=",".join(row)
+                        with open(output_filename, 'a+') as file_out:
+                                file_out.write(row)
+                shutil.move(file, history_dir)
+    files=sorted(glob.glob("./*.cvs"))
+    for file in files:
+        print(file)
+        cvsChart(file,False)
+
+
 
 def clean_files():
     history_dir = 'history'
