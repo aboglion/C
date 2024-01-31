@@ -6,10 +6,11 @@ import shutil
 
 
 
-def cvsChart(csv_file,part_of_day=True):
+def cvsChart(csv_file,part_of_day=False):
     name_=os.path.basename(csv_file)[:-4]
-    if part_of_day:name_+=time.strftime(" TO %H.%M", time.localtime())
+    if part_of_day:name_+=time.strftime(" UNTIL %H", time.localtime())
     
+         
     # פתח את הקובץ CSV וקרא את הנתונים ישירות
     with open(csv_file, 'r') as file:
         lines = file.readlines()
@@ -65,10 +66,13 @@ def cvsChart(csv_file,part_of_day=True):
     )
 
     fig = go.Figure(data=data, layout=layout)
-
+    filename=name_+'.html'
     # יצירת קובץ HTML והצגת הגרף בו
-    plot(fig, filename=name_+'.html', auto_open=True)
-    return name_+'.html'
+    if os.path.exists(filename):
+        os.remove(filename)
+        time.sleep(0.5)     
+    plot(fig, filename=filename, auto_open=True)
+    return filename
 
 
 

@@ -14,7 +14,7 @@ async def async_telgram(CHAT_ID,TOKEN,txt,file=None):
 
         if file :
 
-            await bot.send_document(chat_id=CHAT_ID, document=open(file, 'rb'))
+            await bot.send_document(chat_id=CHAT_ID,caption=txt,document=open(file, 'rb'))
 
         else:
 

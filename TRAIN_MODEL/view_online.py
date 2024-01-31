@@ -20,8 +20,8 @@ h=m*60
 LIFE_TIME = h*75
 STEPS = 2
 long_len_range=45*m
-medium_len_range=15*m
-short_len_range=5*m
+medium_len_range=17*m
+short_len_range=10*m
 # prediction_len_range=20
 
 # long_len_range=4
@@ -80,20 +80,21 @@ def main():
     fee_buy=1.001
     fee_sell=-1.001
 
-
-    (buyed,UP,UNDER_MaxMin,medium_underLong,short_UNDER_med,price_UNDER_short)=(
-        False,False,False,False,False,False )
+    buyed_time=0
+    (buyed,UP,UNDER_MaxMin,medium_underLong,short_UNDER_med,price_UNDER_short,STAR_UP_STAGE0)=(
+        False,False,False,False,False,False,False )
     Action,buyed_prics,profet=0,0,0 #0 -> nothing 1-> buy  2-> sell
-    date=time.strftime("%d.%m.%y_%H", time.localtime())
+    date=time.strftime("%d.%m.%y", time.localtime())
 
     
     while life_time > 0:
-        if not date==time.strftime("%d.%m.%y_%H", time.localtime()) :
+        # NEW DAY------
+        if not date==time.strftime("%d.%m.%y", time.localtime()) :
             if os.path.exists(f"./{symbol} {date}.cvs"):
                     Name_chart=cvsChart(f"./{symbol} {date}.cvs")
                     send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],date,Name_chart)
-
-            date=time.strftime("%d.%m.%y_%H", time.localtime())
+            date=time.strftime("%d.%m.%y", time.localtime())
+        #---------
 
         TIME=time.strftime("%H:%M:%S", time.localtime())
 
@@ -128,11 +129,11 @@ def main():
 
                     UP=AVG_LIST_last_prices[-1]>AVG_LIST_last_prices[-2]>AVG_LIST_last_prices[-3]
                     
-                    CRISIS=(avg_MaxMin>
-                            Last_price_avg_long> 
-                            Last_price_avg_medium>
-                            Last_price_avg_short>
-                            last_price)
+                    CRISIS=False#(avg_MaxMin>
+                    #         Last_price_avg_long> 
+                    #         Last_price_avg_medium>
+                    #         Last_price_avg_short>
+                    #         last_price)
                 #------
                     #RESET MAX MIN
                     #if (not medium_underLong) and Last_price_avg_medium  < Last_price_avg_long:
@@ -159,11 +160,12 @@ def main():
                     # if (not buyed )and UNDER_MaxMin and (
                     #         Last_price_avg_long>last_price>=avg_MaxMin>Last_price_avg_short) \
                     #     and Last_price_avg_medium < Last_price_avg_long :
-                        # and Last_price_avg_medium < avg_MaxMin:
-                    if False and (not buyed )and Max_OnTop and (
-                        last_price>Last_price_avg_short>Last_price_avg_medium and\
-                        avg_MaxMin>Last_price_avg_short and \
-                        Last_price_avg_long>Last_price_avg_short):
+                    #     and Last_price_avg_medium < avg_MaxMin:
+      # (avg_MaxMin-Last_price_avg_long)<2*(Last_price_avg_long-Last_price_avg_medium):
+
+
+                    if (not buyed )and STAR_UP_STAGE0 and Last_price_avg_short>Last_price_avg_medium\
+                         (avg_MaxMin-Last_price_avg_long)<1.3*(Last_price_avg_long-Last_price_avg_medium) :
                             Action=1
                             buyed_prics=last_price*fee_buy
                             st="\n[----------------------------------------]"
@@ -173,6 +175,8 @@ def main():
                                 logfile.write(st)
                             send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],st)
 
+
+                    STAR_UP_STAGE0=Last_price_avg_short<Last_price_avg_medium<Last_price_avg_long<avg_MaxMin
                     short_UNDER_med=Last_price_avg_medium>Last_price_avg_short
                     price_UNDER_short=last_price<Last_price_avg_short
                     UNDER_MaxMin=last_price<avg_MaxMin #its shuld be true before main cinditions checks
@@ -181,14 +185,16 @@ def main():
                     #  SEELING  #
                     #-----------
                     if buyed :profet=round((((last_price*fee_sell)-buyed_prics) / buyed_prics if buyed_prics>0 else 1) * 100,3) 
-                    if False and buyed and profet>0.1\
-                        and (last_price 
-                                > Last_price_avg_short>avg_MaxMin
-                                >Last_price_avg_medium
-                                )and(
-                                    int(last_price-Last_price_avg_short)
-                                    >int(Last_price_avg_medium-Last_price_avg_long))\
-                                or False and (buyed and CRISIS):
+                    if buyed  and profet>0.1\
+                     and  Last_price_avg_short>Last_price_avg_medium>Last_price_avg_long>avg_MaxMin \
+                        or  (buyed and CRISIS):
+                        # and (last_price 
+                        #         > Last_price_avg_short>Last_price_avg_medium
+                        #         >avg_MaxMin>Last_price_avg_long
+                        #         )and(
+                        #             int(Last_price_avg_short-Last_price_avg_medium)
+                        #             ==int(Last_price_avg_medium-avg_MaxMin))\
+                            print(int(time.time())-buyed_time)
                             Action=2
                             st =f"=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
                             st+=f"\t{'CRISIS ! ' if CRISIS  else'# selling'}\n|buy:{buyed_prics}->sell:{last_price} => profet {profet}% |#"
@@ -198,7 +204,7 @@ def main():
                             print("\tTOTAL_PROFET: ",TOTAL_PROFET,"\n=-=-=-=-=-=-=-=-=-=-=-\n")
                             with open(f"./{symbol} {date}.log", "+a") as logfile:
                                 logfile.write(st)
-                            send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],st,cvsChart(f"./{symbol} {date}.cvs"))
+                            send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],st,cvsChart(f"./{symbol} {date}.cvs",True))
 
 
                 #==== LOG IT ======#
@@ -207,6 +213,7 @@ def main():
                     if Action:
                         if Action==1:
                             buyed=True
+                            buyed_time=int(time.time())
                             output+=f'{buyed_prics},{TIME}\n'
 
                         elif Action==2:
@@ -221,7 +228,11 @@ def main():
                 else:
                     Data_collection_progress=((len(AVG_LIST_last_prices)+1)/long_len_range)*100
                     if Data_collection_progress<=100:print("collecting data.. :",((len(AVG_LIST_last_prices)+1)/long_len_range)*100,"%")
-                    else:print("DONE collection data. NOW IT'S START ..")
+                    else:
+                        t="DONE collection data. NOW IT'S START .."
+                        print(t)
+                        send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],t)
+
                     max_price,min_price,avg_MaxMin = last_price,last_price,last_price
                 
                 time.sleep(STEPS)
@@ -229,7 +240,7 @@ def main():
         except KeyboardInterrupt:
             life_time = 0
     if os.path(f"./{symbol} {date}.cvs") :
-        Name_chart=cvsChart(f"./{symbol} {date}.cvs")
+        Name_chart=cvsChart(f"./{symbol} {date}.cvs", True)
         send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS",Name_chart)
     else:send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS - NOfile ")
 
