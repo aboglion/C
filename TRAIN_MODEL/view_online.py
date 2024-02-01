@@ -17,7 +17,7 @@ env=one_pass.env()
 
 m=60
 h=m*60
-LIFE_TIME = h*75
+LIFE_TIME = h*999
 STEPS = 2
 long_len_range=45*m
 medium_len_range=17*m
@@ -78,7 +78,7 @@ def main():
     symbol=top_10_binance_symbols[0]
     STATUS="---"
     fee_buy=1.001
-    fee_sell=-1.001
+    fee_sell=0.009
 
     buyed_time=0
     (buyed,UP,UNDER_MaxMin,medium_underLong,short_UNDER_med,price_UNDER_short,STAR_UP_STAGE0)=(
@@ -165,7 +165,7 @@ def main():
 
 
                     if (not buyed )and STAR_UP_STAGE0 and Last_price_avg_short>Last_price_avg_medium\
-                         (avg_MaxMin-Last_price_avg_long)<1.3*(Last_price_avg_long-Last_price_avg_medium) :
+                        and (avg_MaxMin-Last_price_avg_long<(1.3*Last_price_avg_long-Last_price_avg_medium)) :
                             Action=1
                             buyed_prics=last_price*fee_buy
                             st="\n[----------------------------------------]"
@@ -239,7 +239,7 @@ def main():
                 life_time -= STEPS
         except KeyboardInterrupt:
             life_time = 0
-    if os.path(f"./{symbol} {date}.cvs") :
+    if os.path.exists(f"./{symbol} {date}.cvs") :
         Name_chart=cvsChart(f"./{symbol} {date}.cvs", True)
         send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS",Name_chart)
     else:send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS - NOfile ")
@@ -251,10 +251,12 @@ def main():
 
 if __name__ == "__main__":
     try:
+        time.sleep(3)
         send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"strting ..")
         main()
     except Exception as e:
-        send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],str(e))
+        ERR=f"TRY MAIN ERR\n {e}"
+        send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],ERR)
 
     
 
