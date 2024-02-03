@@ -162,10 +162,10 @@ def main():
                     #     and Last_price_avg_medium < Last_price_avg_long :
                     #     and Last_price_avg_medium < avg_MaxMin:
       # (avg_MaxMin-Last_price_avg_long)<2*(Last_price_avg_long-Last_price_avg_medium):
-
+                        # המקס והארוך למעלה והקצר חוצר את הבינוני מלמטה והמחיר קרוב יותר לבינוני מהקצר
 
                     if (not buyed )and STAR_UP_STAGE0 and Last_price_avg_short>Last_price_avg_medium\
-                        and (avg_MaxMin-Last_price_avg_long<(1.3*Last_price_avg_long-Last_price_avg_medium)) :
+                        and abs(last_price<Last_price_avg_medium)*2<abs(last_price-Last_price_avg_long) :
                             Action=1
                             buyed_prics=last_price*fee_buy
                             st="\n[----------------------------------------]"
@@ -176,17 +176,19 @@ def main():
                             send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],st)
 
 
-                    STAR_UP_STAGE0=Last_price_avg_short<Last_price_avg_medium<Last_price_avg_long<avg_MaxMin
+                    STAR_UP_STAGE0=Last_price_avg_short<Last_price_avg_medium<Last_price_avg_long and Last_price_avg_medium<avg_MaxMin
                     short_UNDER_med=Last_price_avg_medium>Last_price_avg_short
                     price_UNDER_short=last_price<Last_price_avg_short
                     UNDER_MaxMin=last_price<avg_MaxMin #its shuld be true before main cinditions checks
                     Max_OnTop=avg_MaxMin>Last_price_avg_long>Last_price_avg_medium>Last_price_avg_short
                     #-----------#
                     #  SEELING  #
-                    #-----------
-                    if buyed :profet=round((((last_price*fee_sell)-buyed_prics) / buyed_prics if buyed_prics>0 else 1) * 100,3) 
-                    if buyed  and profet>0.1\
-                     and  Last_price_avg_short>Last_price_avg_medium>Last_price_avg_long>avg_MaxMin \
+                    #-----------# profet>0.1\
+                    if buyed :
+                        profet=round((((last_price*fee_sell)-buyed_prics) / buyed_prics if buyed_prics>0 else 1) * 100,3) 
+                        reup=Last_price_avg_short>Last_price_avg_medium>Last_price_avg_long and Last_price_avg_medium>avg_MaxMin
+                        dif_up_biger=(last_price-Last_price_avg_medium)>((Last_price_avg_medium-Last_price_avg_long)*1.5)
+                    if buyed and reup and dif_up_biger\
                         or  (buyed and CRISIS):
                         # and (last_price 
                         #         > Last_price_avg_short>Last_price_avg_medium
@@ -237,6 +239,10 @@ def main():
                 
                 time.sleep(STEPS)
                 life_time -= STEPS
+            else:
+                ERR=f"יש בעיה בחיבור האינטרניט \n{TIME} {symbol}\n"
+                send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],ERR)
+
         except KeyboardInterrupt:
             life_time = 0
     if os.path.exists(f"./{symbol} {date}.cvs") :
