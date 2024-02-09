@@ -164,7 +164,7 @@ def main():
       # (avg_MaxMin-Last_price_avg_long)<2*(Last_price_avg_long-Last_price_avg_medium):
                         # המקס והארוך למעלה והקצר חוצר את הבינוני מלמטה והמחיר קרוב יותר לבינוני מהקצר
 
-                    if (not buyed )and STAR_UP_STAGE0 and Last_price_avg_short>Last_price_avg_medium\
+                    if (not buyed )and STAR_UP_STAGE0 and Last_price_avg_short>Last_price_avg_medium and last_price>Last_price_avg_medium \
                         and abs(last_price<Last_price_avg_medium)*2<abs(last_price-Last_price_avg_long) :
                             Action=1
                             buyed_prics=last_price*fee_buy
@@ -176,7 +176,7 @@ def main():
                             send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],st)
 
 
-                    STAR_UP_STAGE0=Last_price_avg_short<Last_price_avg_medium<Last_price_avg_long and Last_price_avg_medium<avg_MaxMin
+                    STAR_UP_STAGE0=Last_price_avg_short<Last_price_avg_medium<Last_price_avg_long<avg_MaxMin
                     short_UNDER_med=Last_price_avg_medium>Last_price_avg_short
                     price_UNDER_short=last_price<Last_price_avg_short
                     UNDER_MaxMin=last_price<avg_MaxMin #its shuld be true before main cinditions checks
@@ -214,7 +214,7 @@ def main():
                     output=f'{round(last_price,3)},{avg_MaxMin},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{TIME}\n'
                     if Action:
                         if Action==1:
-                            buyed=True
+                            # buyed=True
                             buyed_time=int(time.time())
                             output+=f'{buyed_prics},{TIME}\n'
 
@@ -262,7 +262,8 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         ERR=f"TRY MAIN ERR\n {e}"
-        send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],ERR)
+        print(ERR)
+        # send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],ERR)
 
     
 
