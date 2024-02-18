@@ -23,18 +23,27 @@ def Analyze_market(book):
 
     # Calculate the total AMOUNT for top asks
     total_amount_asks = sum(a['AMOUNT'] for a in asks)
+    # Calculate the demand-supply ratio
+    ratio = total_amount_bids / total_amount_asks
 
-
+      # Determine the maximum change allowed (5% of the current price)
+    max_change = Last_Price * 0.01
     
-    if total_amount_asks-total_amount_bids>0 :
-        Prediction_up =-1
-    elif total_amount_bids-total_amount_asks>0:
-        Prediction_up =1
-    else : Prediction_up=0
+    # Calculate the desired change based on the ratio
+    # If ratio > 1 (more demand), price increase up to 5%
+    # If ratio < 1 (more supply), price decrease up to -5%
+    # The change is proportional to the difference from 1, limited by max_change
+    if ratio > 1:
+        price_change = min((ratio - 1) * Last_Price, max_change)
+    else:
+        price_change = max((ratio - 1) * Last_Price, -max_change)
+    
+    # Apply the calculated change to the current price
+    Prediction_P = Last_Price + price_change
 
    
     return {
         'Last_Price': Last_Price,
-        'Prediction_up':Prediction_up,
+        'Prediction_up':Prediction_P,
     }
 

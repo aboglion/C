@@ -22,8 +22,9 @@ STEPS = 2
 long_len_range=45*m
 medium_len_range=17*m
 short_len_range=10*m
-# prediction_len_range=20
+prediction_len_range=20*m
 
+report_hours_steps=2
 # long_len_range=4
 # medium_len_range=2
 # short_len_range=1
@@ -70,7 +71,7 @@ def check_contenuation(last_time,counter,buyed,symbol,times=20):
 
 def main():
 
-    # AVG_LIST_Prediction=[]
+    AVG_LIST_Prediction=[]
     AVG_LIST_last_prices=[]
 
     TOTAL_PROFET=0
@@ -81,19 +82,19 @@ def main():
     fee_sell=0.009
 
     buyed_time=0
-    (buyed,UP,UNDER_MaxMin,medium_underLong,short_UNDER_med,price_UNDER_short,STAR_UP_STAGE0)=(
-        False,False,False,False,False,False,False )
+    (buyed,UP,dif_eq,UNDER_MaxMin,medium_underLong,short_UNDER_med,price_UNDER_short,STAR_UP_STAGE0)=(
+        False,False,False,False,False,False,False,False )
     Action,buyed_prics,profet=0,0,0 #0 -> nothing 1-> buy  2-> sell
     date=time.strftime("%d.%m.%y", time.localtime())
-
+    time_start=time.strftime("%H:%M:%S", time.localtime())
     
     while life_time > 0:
         # NEW DAY------
-        if not date==time.strftime("%d.%m.%y", time.localtime()) :
-            if os.path.exists(f"./{symbol} {date}.cvs"):
-                    Name_chart=cvsChart(f"./{symbol} {date}.cvs")
-                    send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],date,Name_chart)
-            date=time.strftime("%d.%m.%y", time.localtime())
+        # if not date==time.strftime("%d.%m.%y", time.localtime()) :
+        #     if os.path.exists(f"./{symbol} {date}.cvs"):
+        #             Name_chart=cvsChart(f"./{symbol} {date}.cvs")
+        #             send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],date,Name_chart)
+        #     date=time.strftime("%d.%m.%y", time.localtime())
         #---------
 
         TIME=time.strftime("%H:%M:%S", time.localtime())
@@ -105,17 +106,17 @@ def main():
             book_data = Binance_book_data(symbol)
             if book_data:
                 analyzed_data = Analyze_market(book_data)
-                # Prediction_up=round(analyzed_data["Prediction_up"],3)
+                Prediction_up=round(analyzed_data["Prediction_up"],3)
                 last_price=round(analyzed_data["Last_Price"],3)
 
                 
               
                 #----- collect data  part1---------------- 
                 AVG_LIST_last_prices.append(last_price)
-                # if not(Prediction_up==0):AVG_LIST_Prediction.append(Prediction_up)
+                AVG_LIST_Prediction.append(Prediction_up)
 
-                # if len(AVG_LIST_Prediction)>prediction_len_range:
-                #      del AVG_LIST_Prediction[0]
+                if len(AVG_LIST_Prediction)>prediction_len_range:
+                    del AVG_LIST_Prediction[0]
                 if len(AVG_LIST_last_prices)>long_len_range:
                     del AVG_LIST_last_prices[0]
                     short=AVG_LIST_last_prices[-short_len_range:]
@@ -124,7 +125,7 @@ def main():
                     Last_price_avg_short=round((sum(short)/short_len_range),3)
                     Last_price_avg_medium=round((sum(medium)/medium_len_range),3)
                     Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),3)
-                    # Prediction_dir=True if round((sum(AVG_LIST_Prediction)/prediction_len_range),3)>0 else False
+                    prediction_p=round((sum(AVG_LIST_Prediction)/prediction_len_range),3)
                 #-------  
 
                     UP=AVG_LIST_last_prices[-1]>AVG_LIST_last_prices[-2]>AVG_LIST_last_prices[-3]
@@ -134,47 +135,34 @@ def main():
                     #         Last_price_avg_medium>
                     #         Last_price_avg_short>
                     #         last_price)
-                #------
-                    #RESET MAX MIN
-                    #if (not medium_underLong) and Last_price_avg_medium  < Last_price_avg_long:
-                    #    max_price ,avg_MaxMin,min_price= Last_price_avg_long,Last_price_avg_long,Last_price_avg_long
-                    #    medium_underLong=True
-                    #if medium_underLong and Last_price_avg_medium > Last_price_avg_long:
-                    #    min_price ,avg_MaxMin,max_price= Last_price_avg_long,Last_price_avg_long,Last_price_avg_long
-                    #   medium_underLong=False
-                    #MAX_MIN
+         
                     if AVG_LIST_last_prices[-4] > max_price and\
-                    AVG_LIST_last_prices[-4] < AVG_LIST_last_prices[-3] < AVG_LIST_last_prices[-2] < AVG_LIST_last_prices[-1]:
-                        max_price = AVG_LIST_last_prices[-4]
-                        avg_MaxMin=round((max_price+min_price)/2,3)
+                        AVG_LIST_last_prices[-4] < AVG_LIST_last_prices[-3] and  AVG_LIST_last_prices[-2] > AVG_LIST_last_prices[-1]:
+                                max_price = AVG_LIST_last_prices[-4]
+                                avg_MaxMin=round((max_price+min_price)/2,3)
                     if AVG_LIST_last_prices[-4] < min_price and \
-                    AVG_LIST_last_prices[-4] > AVG_LIST_last_prices[-3] > AVG_LIST_last_prices[-2] > AVG_LIST_last_prices[-1]:
-                        min_price = AVG_LIST_last_prices[-4]          
-                        avg_MaxMin=round((max_price+min_price)/2,3)
-                #--------
-                    # print(Prediction_dir,[AVG_LIST_last_prices[-5:]])
-
+                        AVG_LIST_last_prices[-4] > AVG_LIST_last_prices[-3] and AVG_LIST_last_prices[-2] < AVG_LIST_last_prices[-1]:
+                                min_price = AVG_LIST_last_prices[-4]          
+                                avg_MaxMin=round((max_price+min_price)/2,3)
+     
                     #----------#
                     #  BUYING  #
                     #----------#
-                    # if (not buyed )and UNDER_MaxMin and (
-                    #         Last_price_avg_long>last_price>=avg_MaxMin>Last_price_avg_short) \
-                    #     and Last_price_avg_medium < Last_price_avg_long :
-                    #     and Last_price_avg_medium < avg_MaxMin:
-      # (avg_MaxMin-Last_price_avg_long)<2*(Last_price_avg_long-Last_price_avg_medium):
-                        # המקס והארוך למעלה והקצר חוצר את הבינוני מלמטה והמחיר קרוב יותר לבינוני מהקצר
+                    dif_max_long=avg_MaxMin-Last_price_avg_long
+                    dif_long_mid=Last_price_avg_long-Last_price_avg_medium
+                    dif_mid_short=Last_price_avg_medium-Last_price_avg_short
+                    dif_short_prics=Last_price_avg_short-last_price
+                    if (not buyed ) and  dif_max_long>4*dif_long_mid>2*dif_mid_short>dif_short_prics>=0 :
+                        Action=1
+                        buyed_prics=last_price*fee_buy
+                        st="\n[----------------------------------------]"
+                        st+= f"\n\t BUYING: {TIME} price:{last_price}\n"
+                        print(st)
+                        with open(f"./{symbol} {date}.log", "+a") as logfile:
+                            logfile.write(st)
+                        send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],st)
 
-                    if (not buyed )and STAR_UP_STAGE0 and Last_price_avg_short>Last_price_avg_medium and last_price>Last_price_avg_medium \
-                        and abs(last_price<Last_price_avg_medium)*2<abs(last_price-Last_price_avg_long) :
-                            Action=1
-                            buyed_prics=last_price*fee_buy
-                            st="\n[----------------------------------------]"
-                            st+= f"\n\t BUYING: {TIME} price:{last_price}\n"
-                            print(st)
-                            with open(f"./{symbol} {date}.log", "+a") as logfile:
-                                logfile.write(st)
-                            send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],st)
-
+                    if last_price>Last_price_avg_short:dif_eq=False
 
                     STAR_UP_STAGE0=Last_price_avg_short<Last_price_avg_medium<Last_price_avg_long<avg_MaxMin
                     short_UNDER_med=Last_price_avg_medium>Last_price_avg_short
@@ -190,12 +178,6 @@ def main():
                         dif_up_biger=(last_price-Last_price_avg_medium)>((Last_price_avg_medium-Last_price_avg_long)*1.5)
                     if buyed and reup and dif_up_biger\
                         or  (buyed and CRISIS):
-                        # and (last_price 
-                        #         > Last_price_avg_short>Last_price_avg_medium
-                        #         >avg_MaxMin>Last_price_avg_long
-                        #         )and(
-                        #             int(Last_price_avg_short-Last_price_avg_medium)
-                        #             ==int(Last_price_avg_medium-avg_MaxMin))\
                             print(int(time.time())-buyed_time)
                             Action=2
                             st =f"=======<><><><><><><><><><><><><><><><><>======\n    SELLING: {TIME} price:{last_price}\n"
@@ -209,14 +191,17 @@ def main():
                             send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],st,cvsChart(f"./{symbol} {date}.cvs",True))
 
 
-                #==== LOG IT ======#
+                    #==== LOG IT ======#
             
-                    output=f'{round(last_price,3)},{avg_MaxMin},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{TIME}\n'
+                    output=f'{round(last_price,3)},{avg_MaxMin},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{prediction_p},{TIME}\n'
                     if Action:
                         if Action==1:
                             # buyed=True
                             buyed_time=int(time.time())
                             output+=f'{buyed_prics},{TIME}\n'
+
+                            Name_chart=cvsChart(f"./{symbol} {date}.cvs", True)
+                            send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS",Name_chart)
 
                         elif Action==2:
                             buyed=False
@@ -225,6 +210,14 @@ def main():
                         Action=0
                     with open(f"./{symbol} {date}.cvs", "+a") as logfile:
                         logfile.write(output)
+
+                    #==== SEND REPORT: report evrey 2 h ======#
+                    if int(str(TIME[0:2]))-int(str(time_start[0:2]))>report_hours_steps-1:
+                            time_start=time.strftime("%H:%M:%S", time.localtime())
+                            if os.path.exists(f"./{symbol} {date}.cvs") :
+                                Name_chart=cvsChart(f"./{symbol} {date}.cvs", True)
+                                send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS",Name_chart)
+                            else:send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS - NOfile ")
 
                 #======DATA NOT COLLECTED YET ====xxx
                 else:
@@ -251,10 +244,6 @@ def main():
     else:send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS - NOfile ")
 
 
-    # with open("./logfile.log", "+a") as logfile:
-    #     logfile.write(output)
-
-
 if __name__ == "__main__":
     try:
         time.sleep(3)
@@ -263,7 +252,6 @@ if __name__ == "__main__":
     except Exception as e:
         ERR=f"TRY MAIN ERR\n {e}"
         print(ERR)
-        # send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],ERR)
 
     
 
