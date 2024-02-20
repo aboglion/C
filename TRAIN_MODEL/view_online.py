@@ -86,7 +86,7 @@ def main():
         False,False,False,False,False,False,False,False )
     Action,buyed_prics,profet=0,0,0 #0 -> nothing 1-> buy  2-> sell
     date=time.strftime("%d.%m.%y", time.localtime())
-    time_start=time.strftime("%H:%M:%S", time.localtime())
+    time_start=time.localtime()
     
     while life_time > 0:
         # NEW DAY------
@@ -97,7 +97,6 @@ def main():
         #     date=time.strftime("%d.%m.%y", time.localtime())
         #---------
 
-        TIME=time.strftime("%H:%M:%S", time.localtime())
 
         #cvsChart(f"./{symbol} {date}.cvs")
         #exit(1)
@@ -129,7 +128,10 @@ def main():
                 #-------  
 
                     UP=AVG_LIST_last_prices[-1]>AVG_LIST_last_prices[-2]>AVG_LIST_last_prices[-3]
-                    
+                    loop_time= time.localtime()
+                    TIME=time.strftime("%H:%M:%S",loop_time)
+
+
                     CRISIS=False#(avg_MaxMin>
                     #         Last_price_avg_long> 
                     #         Last_price_avg_medium>
@@ -212,8 +214,9 @@ def main():
                         logfile.write(output)
 
                     #==== SEND REPORT: report evrey 2 h ======#
-                    if int(str(TIME[0:2]))-int(str(time_start[0:2]))>report_hours_steps-1:
-                            time_start=time.strftime("%H:%M:%S", time.localtime())
+                            # time.mktime=>Convert both times to seconds since the epoch
+                    if time.mktime(loop_time)-time.mktime(time_start)>=(report_hours_steps*60*60):
+                            time_start=time.localtime()
                             if os.path.exists(f"./{symbol} {date}.cvs") :
                                 Name_chart=cvsChart(f"./{symbol} {date}.cvs", True)
                                 send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS",Name_chart)
