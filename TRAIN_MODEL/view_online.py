@@ -14,7 +14,7 @@ env=one_pass.env()
 # url_symbols = "https://api.binance.com/api/v3/exchangeInfo"
 
 
-
+dot_point_round=4
 m=60
 h=m*60
 LIFE_TIME = h*999
@@ -42,6 +42,7 @@ top_10_binance_symbols = [
     "ADAUSDT",
     "DOGEUSDT",
     "LUNAUSDT",
+    "DOTUSDT"
 ]
 
 
@@ -76,7 +77,7 @@ def main():
 
     TOTAL_PROFET=0
     life_time = LIFE_TIME
-    symbol=top_10_binance_symbols[0]
+    symbol=top_10_binance_symbols[7]
     STATUS="---"
     fee_buy=1.001
     fee_sell=0.009
@@ -105,8 +106,8 @@ def main():
             book_data = Binance_book_data(symbol)
             if book_data:
                 analyzed_data = Analyze_market(book_data)
-                Prediction_up=round(analyzed_data["Prediction_up"],3)
-                last_price=round(analyzed_data["Last_Price"],3)
+                Prediction_up=round(analyzed_data["Prediction_up"],dot_point_round)
+                last_price=round(analyzed_data["Last_Price"],dot_point_round)
 
                 
               
@@ -121,10 +122,10 @@ def main():
                     short=AVG_LIST_last_prices[-short_len_range:]
                     medium=AVG_LIST_last_prices[-medium_len_range:]
 
-                    Last_price_avg_short=round((sum(short)/short_len_range),3)
-                    Last_price_avg_medium=round((sum(medium)/medium_len_range),3)
-                    Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),3)
-                    prediction_p=round((sum(AVG_LIST_Prediction)/prediction_len_range),3)
+                    Last_price_avg_short=round((sum(short)/short_len_range),dot_point_round)
+                    Last_price_avg_medium=round((sum(medium)/medium_len_range),dot_point_round)
+                    Last_price_avg_long=round((sum(AVG_LIST_last_prices)/long_len_range),dot_point_round)
+                    prediction_p=round((sum(AVG_LIST_Prediction)/prediction_len_range),dot_point_round)
                 #-------  
 
                     UP=AVG_LIST_last_prices[-1]>AVG_LIST_last_prices[-2]>AVG_LIST_last_prices[-3]
@@ -141,11 +142,11 @@ def main():
                     if AVG_LIST_last_prices[-4] > max_price and\
                         AVG_LIST_last_prices[-4] < AVG_LIST_last_prices[-3] and  AVG_LIST_last_prices[-2] > AVG_LIST_last_prices[-1]:
                                 max_price = AVG_LIST_last_prices[-4]
-                                avg_MaxMin=round((max_price+min_price)/2,3)
+                                avg_MaxMin=round((max_price+min_price)/2,dot_point_round)
                     if AVG_LIST_last_prices[-4] < min_price and \
                         AVG_LIST_last_prices[-4] > AVG_LIST_last_prices[-3] and AVG_LIST_last_prices[-2] < AVG_LIST_last_prices[-1]:
                                 min_price = AVG_LIST_last_prices[-4]          
-                                avg_MaxMin=round((max_price+min_price)/2,3)
+                                avg_MaxMin=round((max_price+min_price)/2,dot_point_round)
      
                     #----------#
                     #  BUYING  #
@@ -175,7 +176,7 @@ def main():
                     #  SEELING  #
                     #-----------# profet>0.1\
                     if buyed :
-                        profet=round((((last_price*fee_sell)-buyed_prics) / buyed_prics if buyed_prics>0 else 1) * 100,3) 
+                        profet=round((((last_price*fee_sell)-buyed_prics) / buyed_prics if buyed_prics>0 else 1) * 100,dot_point_round) 
                         reup=Last_price_avg_short>Last_price_avg_medium>Last_price_avg_long and Last_price_avg_medium>avg_MaxMin
                         dif_up_biger=(last_price-Last_price_avg_medium)>((Last_price_avg_medium-Last_price_avg_long)*1.5)
                     if buyed and reup and dif_up_biger\
@@ -195,24 +196,24 @@ def main():
 
                     #==== LOG IT ======#
             
-                    output=f'{round(last_price,3)},{avg_MaxMin},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{prediction_p},{TIME}\n'
+                    output=f'{round(last_price,dot_point_round)},{avg_MaxMin},{Last_price_avg_short},{Last_price_avg_medium},{Last_price_avg_long},{prediction_p},{TIME}\n'
                     if Action:
                         if Action==1:
-                            # buyed=True
+                            buyed=True
                             buyed_time=int(time.time())
                             output+=f'{buyed_prics},{TIME}\n'
-
-                            Name_chart=cvsChart(f"./{symbol} {date}.cvs", True)
-                            send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"LIFE ENDS",Name_chart)
-
                         elif Action==2:
                             buyed=False
-                            output+=f'{last_price},{TIME},{profet}%\n'
-                       
-                        Action=0
+                            output+=f'{last_price},{TIME},{profet}%\n'        
+                                         
+                        Name_chart=cvsChart(f"./{symbol} {date}.cvs", True)
+                        send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"BUYING" if Action==1 else "Seeling" ,Name_chart)
+                  
                     with open(f"./{symbol} {date}.cvs", "+a") as logfile:
                         logfile.write(output)
 
+                    Action=0
+                    
                     #==== SEND REPORT: report evrey 2 h ======#
                             # time.mktime=>Convert both times to seconds since the epoch
                     if time.mktime(loop_time)-time.mktime(time_start)>=(report_hours_steps*60*60):
