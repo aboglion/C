@@ -19,15 +19,19 @@ m=60
 h=m*60
 LIFE_TIME = h*999
 STEPS = 2
-long_len_range=45*m
-medium_len_range=17*m
-short_len_range=10*m
-prediction_len_range=20*m
+# long_len_range=45*m
+# medium_len_range=17*m
+# short_len_range=10*m
+# prediction_len_range=20*m
 
-report_hours_steps=2
-# long_len_range=4
-# medium_len_range=2
-# short_len_range=1
+long_len_range=60*m
+medium_len_range=25*m
+short_len_range=10*m
+prediction_len_range=15*m
+
+
+report_hours_steps=1.15
+
 
 
 top_10_binance_symbols = [
@@ -46,28 +50,6 @@ top_10_binance_symbols = [
 ]
 
 
-def check_contenuation(last_time,counter,buyed,symbol,times=20):
-    date=time.strftime("%d.%m.%y_%H", time.localtime())
-    timeing=time.strftime("%H:%M:%S %d.%m.%y", time.localtime())
-
-    if int(time.time())-last_time<=6:
-        counter+=1
-        st=f'\n{"BUYING" if not buyed else "SELL"}:[0k] {timeing} | CONUTER:{counter} time_diff =>{int(int(time.time())-last_time)}'
-        with open(f"./{symbol} {date}.log", "+a") as logfile:
-            logfile.write(st)
-    else: 
-        counter=0
-        st=f'\n{"BUYING" if not buyed else "SELL"}:[X] {timeing} | CONUTER:{counter} time_diff =>{int(int(time.time())-last_time)}'
-        with open(f"./{symbol} {date}.log", "+a") as logfile:
-            logfile.write(st)
-
-    last_time=int(time.time())
-
-    if counter>times:
-        counter=0
-        return True,last_time,counter
-    else: return False,last_time,counter
-
 
 
 def main():
@@ -83,25 +65,12 @@ def main():
     fee_sell=0.009
 
     buyed_time=0
-    (buyed,UP,dif_eq,UNDER_MaxMin,medium_underLong,short_UNDER_med,price_UNDER_short,STAR_UP_STAGE0)=(
-        False,False,False,False,False,False,False,False )
+    buyed=False 
     Action,buyed_prics,profet=0,0,0 #0 -> nothing 1-> buy  2-> sell
     date=time.strftime("%d.%m.%y", time.localtime())
     time_start=time.localtime()
     
     while life_time > 0:
-        # NEW DAY------
-        # if not date==time.strftime("%d.%m.%y", time.localtime()) :
-        #     if os.path.exists(f"./{symbol} {date}.cvs"):
-        #             Name_chart=cvsChart(f"./{symbol} {date}.cvs")
-        #             send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],date,Name_chart)
-        #     date=time.strftime("%d.%m.%y", time.localtime())
-        #---------
-
-
-        #cvsChart(f"./{symbol} {date}.cvs")
-        #exit(1)
-
         try:
             book_data = Binance_book_data(symbol)
             if book_data:
@@ -155,7 +124,8 @@ def main():
                     dif_long_mid=Last_price_avg_long-Last_price_avg_medium
                     dif_mid_short=Last_price_avg_medium-Last_price_avg_short
                     dif_short_prics=Last_price_avg_short-last_price
-                    if (not buyed ) and  dif_max_long>4*dif_long_mid>2*dif_mid_short>dif_short_prics>=0 :
+                    raising=dif_max_long>4*dif_long_mid>2*dif_mid_short>dif_short_prics>=0 
+                    if (not buyed ) and raising:
                         Action=1
                         buyed_prics=last_price*fee_buy
                         st="\n[----------------------------------------]"
@@ -167,11 +137,6 @@ def main():
 
                     if last_price>Last_price_avg_short:dif_eq=False
 
-                    STAR_UP_STAGE0=Last_price_avg_short<Last_price_avg_medium<Last_price_avg_long<avg_MaxMin
-                    short_UNDER_med=Last_price_avg_medium>Last_price_avg_short
-                    price_UNDER_short=last_price<Last_price_avg_short
-                    UNDER_MaxMin=last_price<avg_MaxMin #its shuld be true before main cinditions checks
-                    Max_OnTop=avg_MaxMin>Last_price_avg_long>Last_price_avg_medium>Last_price_avg_short
                     #-----------#
                     #  SEELING  #
                     #-----------# profet>0.1\
@@ -205,10 +170,7 @@ def main():
                         elif Action==2:
                             buyed=False
                             output+=f'{last_price},{TIME},{profet}%\n'        
-                                         
-                        Name_chart=cvsChart(f"./{symbol} {date}.cvs", True)
-                        send_via_telegram(env["tel_CHAT_ID"] ,env["tel_TOKEN"],"BUYING" if Action==1 else "Seeling" ,Name_chart)
-                  
+
                     with open(f"./{symbol} {date}.cvs", "+a") as logfile:
                         logfile.write(output)
 
